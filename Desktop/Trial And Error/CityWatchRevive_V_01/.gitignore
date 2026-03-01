@@ -1,0 +1,44 @@
+# === CityWatch .gitignore ===
+
+# Local documentation (implementation plans, research notes)
+docs/
+
+# Development diary (daily logs)
+Diary/
+
+# Final project report
+Report/
+
+# Node / React
+node_modules/
+build/
+dist/
+.env
+.env.local
+.env.*.local
+
+# Java / Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.log
+.gradle/
+!gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+*.bak
+*.tmp
