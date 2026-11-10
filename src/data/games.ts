@@ -6,6 +6,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Target Sum',
     ability: 'Numerical Agility',
+    category: 'Numerical',
     icon: '➕',
     short: 'Pick the numbers that add up exactly to the target number.',
     howto: [
@@ -24,6 +25,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Signal Sequence',
     ability: 'Working Memory',
+    category: 'Working Memory',
     icon: '🔔',
     short: 'Watch the pads flash in sequence, then repeat the exact order.',
     howto: [
@@ -42,6 +44,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Stack Sort (Hanoi)',
     ability: 'Planning & Sequencing',
+    category: 'Planning',
     icon: '🗼',
     short: 'Move the entire disk stack to the right peg without placing a larger disk on a smaller one.',
     howto: [
@@ -60,6 +63,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Function Machine',
     ability: 'Logical Reasoning',
+    category: 'Logical',
     icon: '⚙️',
     short: 'Deduce the mathematical rule from example pairs, then calculate the output for the new input.',
     howto: [
@@ -78,6 +82,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Pixel Logic (Nonogram)',
     ability: 'Deductive Reasoning',
+    category: 'Deductive',
     icon: '🔳',
     short: 'Fill the grid cells so each row and column matches its number clues.',
     howto: [
@@ -96,6 +101,7 @@ export const COGNITIVE_GAMES: GameMetadata[] = [
     track: 'cognitive',
     name: 'Matrix Complete',
     ability: 'Pattern Recognition',
+    category: 'Pattern',
     icon: '🧩',
     short: 'A is to B as C is to which option? Complete the 2×2 visual analogy.',
     howto: [
@@ -117,6 +123,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Digit Challenge',
     ability: 'Numerical Reasoning',
+    category: 'Numerical',
     icon: '🔢',
     short: 'Place digits into equation slots so both sides balance. Each digit is used once.',
     howto: [
@@ -133,6 +140,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Grid Challenge',
     ability: 'Working Memory · Multitasking',
+    category: 'Working Memory',
     icon: '🧠',
     short: 'Memorise highlighted cells, answer a quick symmetry check, then recall the cells.',
     howto: [
@@ -149,6 +157,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Motion Challenge',
     ability: 'Planning · Spatial Reasoning',
+    category: 'Planning',
     icon: '🎯',
     short: 'Navigate the red ball around rocks to the goal hole using the fewest possible moves.',
     howto: [
@@ -165,6 +174,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Switch Challenge',
     ability: 'Decoding · Logic',
+    category: 'Logical',
     icon: '🔀',
     short: 'Decode the secret permutation applied by the switch, then choose the correct output.',
     howto: [
@@ -181,6 +191,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Geo-Sudo Challenge',
     ability: 'Deductive Logic',
+    category: 'Deductive',
     icon: '🔷',
     short: 'Fill the geometric grid so each shape appears exactly once in every row and column.',
     howto: [
@@ -197,6 +208,7 @@ export const GAME_BASED_GAMES: GameMetadata[] = [
     track: 'game-based',
     name: 'Inductive Challenge',
     ability: 'Pattern Recognition',
+    category: 'Pattern',
     icon: '🧩',
     short: 'All tiles except one follow a shared property. Click the odd tile that breaks the rule.',
     howto: [
@@ -215,3 +227,22 @@ export const ALL_GAMES: GameMetadata[] = [...COGNITIVE_GAMES, ...GAME_BASED_GAME
 export function getGameById(id: string): GameMetadata | undefined {
   return ALL_GAMES.find(g => g.id === id);
 }
+
+export const ACHIEVEMENTS_CATALOG = [
+  { id: 'ach-1', code: 'FIRST_STEP', title: 'First Step', description: 'Complete your very first practice round in any game', icon: '🚀', xpReward: 100, category: 'general' as const },
+  { id: 'ach-2', code: 'CENTURY_CLUB', title: 'Century Club', description: 'Score 100 or more points in a single round', icon: '💯', xpReward: 150, category: 'general' as const },
+  { id: 'ach-3', code: 'SHARPSHOOTER', title: 'Flawless Mind', description: 'Finish an assessment round with 100% accuracy', icon: '🎯', xpReward: 250, category: 'accuracy' as const },
+  { id: 'ach-4', code: 'DEEP_FOCUS', title: 'Deep Focus', description: 'Clear 5 consecutive levels in any cognitive game', icon: '🧠', xpReward: 200, category: 'mastery' as const },
+  { id: 'ach-5', code: 'SPEED_DEMON', title: 'Lightning Reflexes', description: 'Solve any puzzle level in under 3 seconds', icon: '⚡', xpReward: 200, category: 'speed' as const },
+  { id: 'ach-6', code: 'HANOI_ARCHITECT', title: 'Tower Architect', description: 'Clear Stack Sort with 4 or more disks', icon: '🗼', xpReward: 300, category: 'mastery' as const },
+  { id: 'ach-7', code: 'MAZE_NAVIGATOR', title: 'Pathfinder', description: 'Reach the hole in Motion Challenge in under 10 moves', icon: '🏁', xpReward: 250, category: 'speed' as const },
+  { id: 'ach-8', code: 'NONOGRAM_ARTIST', title: 'Pixel Detective', description: 'Complete a Pixel Logic puzzle without any wrong checks', icon: '🔳', xpReward: 300, category: 'accuracy' as const },
+  { id: 'ach-9', code: 'EQUATION_BALANCER', title: 'Math Wizard', description: 'Complete 5 levels of Digit Challenge', icon: '🔢', xpReward: 250, category: 'mastery' as const },
+  { id: 'ach-10', code: 'LATIN_GENIUS', title: 'Sudo Master', description: 'Solve a Geo-Sudo puzzle without checking errors', icon: '🔷', xpReward: 350, category: 'mastery' as const },
+  { id: 'ach-11', code: 'MARATHON_CHAMPION', title: 'Cognitive Marathoner', description: 'Complete the 6-game Grand Cognitive Marathon', icon: '🏆', xpReward: 500, category: 'endurance' as const },
+  { id: 'ach-12', code: 'PERFECT_INDEX', title: 'Aptitude Prodigy', description: 'Achieve an official Performance Index of 80+ (Excellent Band)', icon: '👑', xpReward: 500, category: 'mastery' as const },
+  { id: 'ach-13', code: 'SILVER_RANK', title: 'Rising Contender', description: 'Reach Silver Tier rank (1,000+ XP)', icon: '🥈', xpReward: 200, category: 'general' as const },
+  { id: 'ach-14', code: 'GOLD_RANK', title: 'Aptitude Veteran', description: 'Reach Gold Tier rank (3,000+ XP)', icon: '🥇', xpReward: 400, category: 'general' as const },
+  { id: 'ach-15', code: 'DIAMOND_RANK', title: 'Elite Strategist', description: 'Reach Diamond Tier rank (7,500+ XP)', icon: '💎', xpReward: 800, category: 'general' as const },
+  { id: 'ach-16', code: 'GRANDMASTER', title: 'Cognitive Grandmaster', description: 'Reach Grandmaster Tier (15,000+ XP)', icon: '🌌', xpReward: 1500, category: 'mastery' as const },
+];

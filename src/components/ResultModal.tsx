@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { GameMetadata, GameResult } from '../types';
-import { Trophy, RotateCcw, Home, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Trophy, RotateCcw, Home, ArrowRight, CheckCircle2, Sparkles, Award } from 'lucide-react';
 import { fireCelebration } from '../utils/confetti';
 import { sound } from '../utils/sound';
 
@@ -47,11 +47,17 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         <h2 className="text-2xl sm:text-3xl font-black text-white">
           {game.name}: Round Complete!
         </h2>
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
           <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-400/30 shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Assessment Logged</span>
+            <span>Telemetry Saved to Cloud Database</span>
           </span>
+          {result.xpEarned && (
+            <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/30 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>+{result.xpEarned} XP Earned</span>
+            </span>
+          )}
         </div>
         <p className="text-slate-400 text-sm mt-1.5">Here is your cognitive performance report:</p>
       </div>
@@ -109,6 +115,32 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Newly Unlocked Achievements in this round */}
+      {result.newAchievements && result.newAchievements.length > 0 && (
+        <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-left animate-fade-in">
+          <div className="flex items-center gap-2 text-xs font-black text-amber-400 uppercase tracking-wider mb-2">
+            <Award className="w-4 h-4" />
+            <span>Badge Unlocked This Round!</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {result.newAchievements.map(ach => (
+              <div key={ach.id} className="flex items-center justify-between gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-amber-500/30">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">{ach.icon}</span>
+                  <div>
+                    <div className="font-bold text-white text-xs">{ach.title}</div>
+                    <div className="text-[11px] text-slate-300">{ach.description}</div>
+                  </div>
+                </div>
+                <span className="text-xs font-mono font-bold text-amber-400 shrink-0">
+                  +{ach.xpReward} XP
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Explanatory Note */}
       <div className="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 leading-relaxed text-left">
