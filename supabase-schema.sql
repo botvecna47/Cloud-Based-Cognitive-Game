@@ -4,11 +4,11 @@
 -- ==============================================================================
 -- Security Controls Implemented:
 -- 1. Anti-Tamper Row Level Security (RLS) on all tables
--- 2. Principle of Least Privilege: Direct client stat/XP manipulation blocked
--- 3. Automatic Server-Side XP Calculation & High Score Updates via Trigger
--- 4. Search Path Hijacking Protection (SET search_path = public)
--- 5. Strict Allowlist Domain Constraints & Regex Input Validation
--- 6. Defense against XSS, SQLi, and Unauthorized State Modification
+-- 2. Column-level PII protection: profiles.email revoked from public/anon/authenticated
+-- 3. Strict Anti-Cheat: Direct client writes to user_high_scores & user_achievements blocked
+-- 4. Automatic Server-Side XP, Achievement Bounties & High Scores via Triggers
+-- 5. Search Path Hijacking Protection (SET search_path = public) & REVOKE EXECUTE
+-- 6. Strict Allowlist Domain Constraints, Regex Validation & Composite Indexes
 -- ==============================================================================
 
 -- 1. Enable required PostgreSQL cryptographic extensions
@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Column-level PII protection: prevent any API client from reading other users' emails
+REVOKE SELECT (email) ON public.profiles FROM public, anon, authenticated;
+
 -- USER SETTINGS TABLE (Client preferences)
 CREATE TABLE IF NOT EXISTS public.user_settings (
     user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -62,6 +65,7 @@ CREATE TABLE IF NOT EXISTS public.game_sessions (
     game_name TEXT NOT NULL CHECK (char_length(game_name) BETWEEN 2 AND 64),
     track_id TEXT NOT NULL CHECK (track_id IN ('cognitive', 'game-based')),
     mode TEXT NOT NULL DEFAULT 'practice' CHECK (mode IN ('practice', 'assessment', 'marathon')),
+    marathon_completed BOOLEAN NOT NULL DEFAULT false,
     score INTEGER NOT NULL DEFAULT 0 CHECK (score BETWEEN 0 AND 50000),
     levels_cleared INTEGER NOT NULL DEFAULT 0 CHECK (levels_cleared BETWEEN 0 AND 50),
     correct_count INTEGER NOT NULL DEFAULT 0 CHECK (correct_count BETWEEN 0 AND 500),
@@ -74,6 +78,9 @@ CREATE TABLE IF NOT EXISTS public.game_sessions (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Ensure column exists if upgrading from an older schema version
+ALTER TABLE public.game_sessions ADD COLUMN IF NOT EXISTS marathon_completed BOOLEAN NOT NULL DEFAULT false;
+
 -- SESSION LEVEL RECORDS (Granular metrics per individual puzzle level)
 CREATE TABLE IF NOT EXISTS public.session_level_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -83,10 +90,13 @@ CREATE TABLE IF NOT EXISTS public.session_level_records (
     time_taken_seconds NUMERIC(6,2) NOT NULL CHECK (time_taken_seconds BETWEEN 0.01 AND 600.00),
     score_earned INTEGER NOT NULL DEFAULT 0 CHECK (score_earned BETWEEN 0 AND 5000),
     is_correct BOOLEAN NOT NULL DEFAULT true,
+    moves_count INTEGER CHECK (moves_count IS NULL OR moves_count BETWEEN 1 AND 500),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- USER HIGH SCORES (Derived record of personal bests)
+ALTER TABLE public.session_level_records ADD COLUMN IF NOT EXISTS moves_count INTEGER CHECK (moves_count IS NULL OR moves_count BETWEEN 1 AND 500);
+
+-- USER HIGH SCORES (Server-maintained personal bests)
 CREATE TABLE IF NOT EXISTS public.user_high_scores (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     game_id TEXT NOT NULL CHECK (
@@ -111,7 +121,7 @@ CREATE TABLE IF NOT EXISTS public.achievements (
     category TEXT NOT NULL DEFAULT 'general' CHECK (category IN ('general', 'accuracy', 'speed', 'endurance', 'mastery'))
 );
 
--- USER UNLOCKED ACHIEVEMENTS
+-- USER UNLOCKED ACHIEVEMENTS (Server-maintained unlocked badges)
 CREATE TABLE IF NOT EXISTS public.user_achievements (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     achievement_id TEXT NOT NULL REFERENCES public.achievements(id) ON DELETE CASCADE,
@@ -120,20 +130,19 @@ CREATE TABLE IF NOT EXISTS public.user_achievements (
 );
 
 -- ==============================================================================
--- 3. HIGH-PERFORMANCE INDEXING
+-- 3. HIGH-PERFORMANCE COMPOSITE INDEXING
 -- ==============================================================================
-CREATE INDEX IF NOT EXISTS idx_game_sessions_user_id ON public.game_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_game_sessions_user_created ON public.game_sessions(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_game_sessions_game_id ON public.game_sessions(game_id);
-CREATE INDEX IF NOT EXISTS idx_game_sessions_created_at ON public.game_sessions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_session_level_records_session_id ON public.session_level_records(session_id);
+CREATE INDEX IF NOT EXISTS idx_session_level_records_user_id ON public.session_level_records(user_id);
 CREATE INDEX IF NOT EXISTS idx_high_scores_game_score ON public.user_high_scores(game_id, best_score DESC);
 CREATE INDEX IF NOT EXISTS idx_profiles_total_xp ON public.profiles(total_xp DESC);
 
 -- ==============================================================================
--- 4. ROW LEVEL SECURITY (RLS) POLICIES - DEFENSE IN DEPTH
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES - ZERO-TRUST DEFENSE IN DEPTH
 -- ==============================================================================
 
--- Enable RLS on all tables
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.game_sessions ENABLE ROW LEVEL SECURITY;
@@ -142,7 +151,7 @@ ALTER TABLE public.user_high_scores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_achievements ENABLE ROW LEVEL SECURITY;
 
--- Clean up any existing policies
+-- Clean up any existing policies before recreating
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
@@ -161,89 +170,126 @@ DROP POLICY IF EXISTS "Users can view their own achievements" ON public.user_ach
 DROP POLICY IF EXISTS "Users can unlock their own achievements" ON public.user_achievements;
 
 -- 4.1 PROFILES POLICIES
--- Safe public read for leaderboard and social stats (excluding email)
-CREATE POLICY "Public profiles are viewable by everyone" 
+-- Public read for leaderboard/social stats (email column is revoked at table privilege level)
+CREATE POLICY "Public profiles are viewable by everyone"
 ON public.profiles FOR SELECT USING (true);
 
--- Users can only insert their own row on first register
-CREATE POLICY "Users can insert their own profile" 
+-- Users can insert their own profile as fallback (stats reset to 0 by tr_protect_profile_stats)
+CREATE POLICY "Users can insert their own profile"
 ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Users can only update their own display settings (username and avatar)
--- Direct modification of total_xp, rank_tier, games_played is protected by database trigger
-CREATE POLICY "Users can update their own profile" 
+-- Users can only update their own display settings (username & avatar_url; stats protected by trigger)
+CREATE POLICY "Users can update their own profile"
 ON public.profiles FOR UPDATE USING (auth.uid() = id)
 WITH CHECK (auth.uid() = id);
 
--- 4.2 USER SETTINGS POLICIES (Isolated to owning user)
-CREATE POLICY "Users can view their own settings" 
+-- 4.2 USER SETTINGS POLICIES
+CREATE POLICY "Users can view their own settings"
 ON public.user_settings FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own settings" 
+CREATE POLICY "Users can insert their own settings"
 ON public.user_settings FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own settings" 
+CREATE POLICY "Users can update their own settings"
 ON public.user_settings FOR UPDATE USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
 -- 4.3 GAME SESSIONS POLICIES
-CREATE POLICY "Users can view their own sessions" 
+CREATE POLICY "Users can view their own sessions"
 ON public.game_sessions FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own sessions" 
+CREATE POLICY "Users can insert their own sessions"
 ON public.game_sessions FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- 4.4 SESSION LEVEL RECORDS POLICIES
-CREATE POLICY "Users can view their own level records" 
+CREATE POLICY "Users can view their own level records"
 ON public.session_level_records FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can insert their own level records" 
+CREATE POLICY "Users can insert their own level records"
 ON public.session_level_records FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- 4.5 USER HIGH SCORES POLICIES
--- High scores are public for leaderboard display
-CREATE POLICY "High scores are viewable by everyone" 
+-- 4.5 USER HIGH SCORES POLICIES (READ-ONLY FOR CLIENTS — ANTI-CHEAT)
+-- Only trusted SECURITY DEFINER triggers can write to user_high_scores.
+CREATE POLICY "High scores are viewable by everyone"
 ON public.user_high_scores FOR SELECT USING (true);
 
--- Direct client updates/inserts on high scores are blocked; they are maintained automatically
--- by the trusted server-side trigger when valid game_sessions are inserted.
--- Allow insert/update only for owning user as fallback if trigger is bypassed
-CREATE POLICY "Users can insert their own high scores" 
-ON public.user_high_scores FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own high scores" 
-ON public.user_high_scores FOR UPDATE USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
-
--- 4.6 ACHIEVEMENTS POLICIES
-CREATE POLICY "Achievements catalog is viewable by everyone" 
+-- 4.6 ACHIEVEMENTS POLICIES (READ-ONLY FOR CLIENTS — ANTI-CHEAT)
+-- Only trusted SECURITY DEFINER triggers can insert into user_achievements.
+CREATE POLICY "Achievements catalog is viewable by everyone"
 ON public.achievements FOR SELECT USING (true);
 
-CREATE POLICY "Users can view their own achievements" 
+CREATE POLICY "Users can view their own achievements"
 ON public.user_achievements FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can unlock their own achievements" 
-ON public.user_achievements FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ==============================================================================
 -- 5. SERVER-SIDE SECURITY FUNCTIONS & TRIGGERS
 -- ==============================================================================
 
--- 5.1 PREVENT PROFILE STAT TAMPERING VIA DIRECT UPDATE
--- Ensures clients cannot forge total_xp, rank_tier, or games_played
+-- Helper: Calculate rank tier from XP
+CREATE OR REPLACE FUNCTION public.compute_rank_tier(xp INTEGER)
+RETURNS TEXT
+LANGUAGE plpgsql
+IMMUTABLE
+SET search_path = public
+AS $$
+BEGIN
+    IF xp >= 25000 THEN RETURN 'Grandmaster';
+    ELSIF xp >= 15000 THEN RETURN 'Master';
+    ELSIF xp >= 9000 THEN RETURN 'Diamond';
+    ELSIF xp >= 5500 THEN RETURN 'Platinum';
+    ELSIF xp >= 3000 THEN RETURN 'Gold';
+    ELSIF xp >= 1000 THEN RETURN 'Silver';
+    ELSE RETURN 'Bronze';
+    END IF;
+END;
+$$;
+
+-- Helper: Safely award an achievement and credit its bonus XP if newly unlocked
+CREATE OR REPLACE FUNCTION public.award_achievement_if_new(p_user_id UUID, p_ach_id TEXT)
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+    inserted_id TEXT;
+    reward INTEGER := 0;
+BEGIN
+    INSERT INTO public.user_achievements (user_id, achievement_id)
+    VALUES (p_user_id, p_ach_id)
+    ON CONFLICT (user_id, achievement_id) DO NOTHING
+    RETURNING achievement_id INTO inserted_id;
+
+    IF inserted_id IS NOT NULL THEN
+        SELECT xp_reward INTO reward FROM public.achievements WHERE id = p_ach_id;
+        RETURN COALESCE(reward, 0);
+    END IF;
+
+    RETURN 0;
+END;
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.award_achievement_if_new(UUID, TEXT) FROM public, anon, authenticated;
+
+-- 5.1 PREVENT PROFILE STAT TAMPERING VIA DIRECT INSERT OR UPDATE
 CREATE OR REPLACE FUNCTION public.protect_profile_stats()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-    -- If the session variable is set, allow the internal trigger to update stats
     IF current_setting('app.allow_stat_update', true) = 'true' THEN
         RETURN NEW;
     END IF;
 
-    -- If a standard client user tries to alter total_xp, rank_tier, games_played, or best_performance_index,
-    -- preserve the existing validated values
+    IF TG_OP = 'INSERT' THEN
+        NEW.total_xp := 0;
+        NEW.rank_tier := 'Bronze';
+        NEW.games_played := 0;
+        NEW.best_performance_index := 0;
+        RETURN NEW;
+    END IF;
+
+    -- Preserve server-validated stats on client UPDATE
     NEW.total_xp := OLD.total_xp;
     NEW.rank_tier := OLD.rank_tier;
     NEW.games_played := OLD.games_played;
@@ -256,10 +302,9 @@ $$;
 
 DROP TRIGGER IF EXISTS tr_protect_profile_stats ON public.profiles;
 CREATE TRIGGER tr_protect_profile_stats
-    BEFORE UPDATE ON public.profiles
+    BEFORE INSERT OR UPDATE ON public.profiles
     FOR EACH ROW EXECUTE FUNCTION public.protect_profile_stats();
 
--- Revoke direct execution of security functions from public roles
 REVOKE EXECUTE ON FUNCTION public.protect_profile_stats() FROM public, anon, authenticated;
 
 -- 5.2 AUTOMATIC PROFILE AND SETTINGS CREATION ON SIGNUP
@@ -272,10 +317,9 @@ DECLARE
     clean_username TEXT;
     avatar_val TEXT;
 BEGIN
-    -- Sanitize and construct default username
     clean_username := COALESCE(
         REGEXP_REPLACE(NEW.raw_user_meta_data->>'username', '[^a-zA-Z0-9_\-\.]', '', 'g'),
-        SPLIT_PART(NEW.email, '@', 1),
+        REGEXP_REPLACE(SPLIT_PART(NEW.email, '@', 1), '[^a-zA-Z0-9_\-\.]', '', 'g'),
         'Cadet_' || SUBSTRING(NEW.id::TEXT, 1, 6)
     );
 
@@ -285,7 +329,6 @@ BEGIN
         clean_username := SUBSTRING(clean_username, 1, 24);
     END IF;
 
-    -- Ensure unique username
     IF EXISTS (SELECT 1 FROM public.profiles WHERE username = clean_username) THEN
         clean_username := SUBSTRING(clean_username, 1, 19) || '_' || SUBSTRING(NEW.id::TEXT, 1, 4);
     END IF;
@@ -295,15 +338,12 @@ BEGIN
         avatar_val := 'brain-blue';
     END IF;
 
-    -- Set bypass flag for initial creation
     PERFORM set_config('app.allow_stat_update', 'true', true);
 
-    -- Create profile
     INSERT INTO public.profiles (id, username, email, avatar_url, total_xp, rank_tier, games_played, best_performance_index)
     VALUES (NEW.id, clean_username, NEW.email, avatar_val, 0, 'Bronze', 0, 0)
     ON CONFLICT (id) DO NOTHING;
 
-    -- Create default settings
     INSERT INTO public.user_settings (user_id)
     VALUES (NEW.id)
     ON CONFLICT (user_id) DO NOTHING;
@@ -319,9 +359,7 @@ CREATE TRIGGER on_auth_user_created
 
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM public, anon, authenticated;
 
--- 5.3 AUTOMATIC GAME SESSION TELEMETRY & PROGRESSION PROCESSOR
--- Whenever a game session is recorded, this server-side trigger securely computes XP,
--- updates user high score, refreshes profile stats and rank tier, and unlocks eligible achievements.
+-- 5.3 AUTOMATIC GAME SESSION PROGRESSION & ACHIEVEMENTS PROCESSOR
 CREATE OR REPLACE FUNCTION public.process_game_session()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -329,18 +367,16 @@ SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
     computed_xp INTEGER;
+    bonus_xp INTEGER := 0;
     new_total_xp INTEGER;
     calculated_rank TEXT;
     current_pi INTEGER;
 BEGIN
-    -- 1. Compute earned XP server-side
-    computed_xp := ROUND(NEW.score * 0.5) 
-                 + ROUND((NEW.accuracy_pct::NUMERIC / 100.0) * 50) 
-                 + (NEW.levels_cleared * 20) 
+    -- 1. Compute base earned XP server-side
+    computed_xp := ROUND(NEW.score * 0.5)
+                 + ROUND((NEW.accuracy_pct::NUMERIC / 100.0) * 50)
+                 + (NEW.levels_cleared * 20)
                  + COALESCE(ROUND(NEW.performance_index * 0.8), 0);
-
-    -- Store computed XP in session row
-    NEW.xp_awarded := computed_xp;
 
     -- 2. Update High Scores
     INSERT INTO public.user_high_scores (user_id, game_id, best_score, best_level, best_accuracy, best_performance_index, updated_at)
@@ -360,25 +396,62 @@ BEGIN
         best_performance_index = GREATEST(user_high_scores.best_performance_index, EXCLUDED.best_performance_index),
         updated_at = NOW();
 
-    -- 3. Update User Profile XP, Games Played, and Rank Tier
+    -- 3. Award session-based achievements & sum bonus XP
+    bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-1'); -- First Step
+    IF NEW.score >= 100 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-2'); -- Century Club
+    END IF;
+    IF NEW.accuracy_pct = 100 AND NEW.attempts_count >= 3 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-3'); -- Sharpshooter
+    END IF;
+    IF NEW.levels_cleared >= 5 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-4'); -- Deep Focus
+    END IF;
+    IF NEW.game_id = 'hanoi' AND NEW.levels_cleared >= 2 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-6'); -- Hanoi (4+ disks)
+    END IF;
+    IF NEW.game_id = 'pixel' AND NEW.accuracy_pct = 100 AND NEW.levels_cleared >= 1 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-8'); -- Nonogram Artist
+    END IF;
+    IF NEW.game_id = 'digit' AND NEW.levels_cleared >= 5 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-9'); -- Digit Challenge
+    END IF;
+    IF NEW.game_id = 'sudo' AND NEW.accuracy_pct = 100 AND NEW.levels_cleared >= 1 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-10'); -- Sudo Master
+    END IF;
+    IF NEW.mode = 'marathon' AND NEW.marathon_completed = true THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-11'); -- Marathon Champion
+    END IF;
+    IF NEW.performance_index >= 80 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-12'); -- Perfect Index
+    END IF;
+
+    -- 4. Update User Profile XP, Games Played, and Rank Tier
     PERFORM set_config('app.allow_stat_update', 'true', true);
 
     SELECT total_xp, best_performance_index INTO new_total_xp, current_pi
     FROM public.profiles
     WHERE id = NEW.user_id;
 
-    new_total_xp := COALESCE(new_total_xp, 0) + computed_xp;
+    new_total_xp := COALESCE(new_total_xp, 0) + computed_xp + bonus_xp;
     current_pi := GREATEST(COALESCE(current_pi, 0), COALESCE(NEW.performance_index, 0));
 
-    -- Determine new Rank Tier
-    IF new_total_xp >= 25000 THEN calculated_rank := 'Grandmaster';
-    ELSIF new_total_xp >= 15000 THEN calculated_rank := 'Master';
-    ELSIF new_total_xp >= 9000 THEN calculated_rank := 'Diamond';
-    ELSIF new_total_xp >= 5500 THEN calculated_rank := 'Platinum';
-    ELSIF new_total_xp >= 3000 THEN calculated_rank := 'Gold';
-    ELSIF new_total_xp >= 1000 THEN calculated_rank := 'Silver';
-    ELSE calculated_rank := 'Bronze';
+    -- Check Rank Milestone achievements (aligned with compute_rank_tier thresholds)
+    IF new_total_xp >= 1000 THEN
+        new_total_xp := new_total_xp + public.award_achievement_if_new(NEW.user_id, 'ach-13'); -- Silver
     END IF;
+    IF new_total_xp >= 3000 THEN
+        new_total_xp := new_total_xp + public.award_achievement_if_new(NEW.user_id, 'ach-14'); -- Gold
+    END IF;
+    IF new_total_xp >= 9000 THEN
+        new_total_xp := new_total_xp + public.award_achievement_if_new(NEW.user_id, 'ach-15'); -- Diamond
+    END IF;
+    IF new_total_xp >= 25000 THEN
+        new_total_xp := new_total_xp + public.award_achievement_if_new(NEW.user_id, 'ach-16'); -- Grandmaster
+    END IF;
+
+    calculated_rank := public.compute_rank_tier(new_total_xp);
+    NEW.xp_awarded := computed_xp + bonus_xp;
 
     UPDATE public.profiles
     SET total_xp = new_total_xp,
@@ -387,84 +460,6 @@ BEGIN
         best_performance_index = current_pi,
         updated_at = NOW()
     WHERE id = NEW.user_id;
-
-    -- 4. Check and Award Achievements
-    -- ach-1: First Step
-    INSERT INTO public.user_achievements (user_id, achievement_id)
-    VALUES (NEW.user_id, 'ach-1')
-    ON CONFLICT DO NOTHING;
-
-    -- ach-2: Century Club
-    IF NEW.score >= 100 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-2') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-3: Sharpshooter
-    IF NEW.accuracy_pct = 100 AND NEW.attempts_count >= 3 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-3') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-4: Deep Focus
-    IF NEW.levels_cleared >= 5 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-4') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-6: Hanoi
-    IF NEW.game_id = 'hanoi' AND NEW.levels_cleared >= 3 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-6') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-8: Pixel Nonogram
-    IF NEW.game_id = 'pixel' AND NEW.accuracy_pct = 100 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-8') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-9: Digit Challenge
-    IF NEW.game_id = 'digit' AND NEW.levels_cleared >= 5 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-9') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-10: Sudo Master
-    IF NEW.game_id = 'sudo' AND NEW.accuracy_pct = 100 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-10') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-11: Marathon
-    IF NEW.mode = 'marathon' THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-11') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- ach-12: Perfect Index
-    IF NEW.performance_index >= 80 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-12') ON CONFLICT DO NOTHING;
-    END IF;
-
-    -- Rank milestone achievements
-    IF new_total_xp >= 1000 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-13') ON CONFLICT DO NOTHING;
-    END IF;
-    IF new_total_xp >= 3000 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-14') ON CONFLICT DO NOTHING;
-    END IF;
-    IF new_total_xp >= 7500 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-15') ON CONFLICT DO NOTHING;
-    END IF;
-    IF new_total_xp >= 15000 THEN
-        INSERT INTO public.user_achievements (user_id, achievement_id)
-        VALUES (NEW.user_id, 'ach-16') ON CONFLICT DO NOTHING;
-    END IF;
 
     RETURN NEW;
 END;
@@ -477,13 +472,62 @@ CREATE TRIGGER tr_process_game_session
 
 REVOKE EXECUTE ON FUNCTION public.process_game_session() FROM public, anon, authenticated;
 
+-- 5.4 LEVEL TELEMETRY ACHIEVEMENT PROCESSOR (SPEED_DEMON & MAZE_NAVIGATOR)
+CREATE OR REPLACE FUNCTION public.process_level_record()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+    parent_game_id TEXT;
+    bonus_xp INTEGER := 0;
+    updated_xp INTEGER;
+BEGIN
+    IF NOT NEW.is_correct THEN
+        RETURN NEW;
+    END IF;
+
+    -- ach-5: Speed Demon (solve any level in under 3 seconds)
+    IF NEW.time_taken_seconds < 3.0 THEN
+        bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-5');
+    END IF;
+
+    -- ach-7: Maze Navigator (Motion Challenge solved in under 10 moves)
+    IF NEW.moves_count IS NOT NULL AND NEW.moves_count < 10 THEN
+        SELECT game_id INTO parent_game_id FROM public.game_sessions WHERE id = NEW.session_id;
+        IF parent_game_id = 'motion' THEN
+            bonus_xp := bonus_xp + public.award_achievement_if_new(NEW.user_id, 'ach-7');
+        END IF;
+    END IF;
+
+    IF bonus_xp > 0 THEN
+        PERFORM set_config('app.allow_stat_update', 'true', true);
+        UPDATE public.profiles
+        SET total_xp = total_xp + bonus_xp,
+            rank_tier = public.compute_rank_tier(total_xp + bonus_xp),
+            updated_at = NOW()
+        WHERE id = NEW.user_id
+        RETURNING total_xp INTO updated_xp;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS tr_process_level_record ON public.session_level_records;
+CREATE TRIGGER tr_process_level_record
+    AFTER INSERT ON public.session_level_records
+    FOR EACH ROW EXECUTE FUNCTION public.process_level_record();
+
+REVOKE EXECUTE ON FUNCTION public.process_level_record() FROM public, anon, authenticated;
+
 -- ==============================================================================
--- 6. LEADERBOARD VIEW WITH SECURITY INVOKER
+-- 6. LEADERBOARD VIEW WITH SECURITY INVOKER (NO EMAIL EXPOSED)
 -- ==============================================================================
 CREATE OR REPLACE VIEW public.leaderboard_view
 WITH (security_invoker = true)
 AS
-SELECT 
+SELECT
     p.id AS user_id,
     p.username,
     p.avatar_url,
@@ -518,8 +562,8 @@ VALUES
     ('ach-12', 'PERFECT_INDEX', 'Aptitude Prodigy', 'Achieve an official Performance Index of 80+ (Excellent Band)', '👑', 500, 'mastery'),
     ('ach-13', 'SILVER_RANK', 'Rising Contender', 'Reach Silver Tier rank (1,000+ XP)', '🥈', 200, 'general'),
     ('ach-14', 'GOLD_RANK', 'Aptitude Veteran', 'Reach Gold Tier rank (3,000+ XP)', '🥇', 400, 'general'),
-    ('ach-15', 'DIAMOND_RANK', 'Elite Strategist', 'Reach Diamond Tier rank (7,500+ XP)', '💎', 800, 'general'),
-    ('ach-16', 'GRANDMASTER', 'Cognitive Grandmaster', 'Reach Grandmaster Tier (15,000+ XP)', '🌌', 1500, 'mastery')
+    ('ach-15', 'DIAMOND_RANK', 'Elite Strategist', 'Reach Diamond Tier rank (9,000+ XP)', '💎', 800, 'general'),
+    ('ach-16', 'GRANDMASTER', 'Cognitive Grandmaster', 'Reach Grandmaster Tier (25,000+ XP)', '🌌', 1500, 'mastery')
 ON CONFLICT (id) DO UPDATE SET
     title = EXCLUDED.title,
     description = EXCLUDED.description,

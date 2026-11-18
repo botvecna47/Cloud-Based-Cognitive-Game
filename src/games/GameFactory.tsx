@@ -19,36 +19,37 @@ import { InductiveChallenge } from './track2/InductiveChallenge';
 
 export const GameRenderer: React.FC<{
   gameId: GameId;
+  puzzleKey: string;
   api: GameAPI;
-}> = ({ gameId, api }) => {
+}> = ({ gameId, puzzleKey, api }) => {
   switch (gameId) {
     // Track 1
     case 'sum':
-      return <TargetSum key={`sum-${api.level}`} api={api} />;
+      return <TargetSum key={puzzleKey} api={api} />;
     case 'seq':
-      return <SignalSequence key={`seq-${api.level}`} api={api} />;
+      return <SignalSequence key={puzzleKey} api={api} />;
     case 'hanoi':
-      return <StackSort key={`hanoi-${api.level}`} api={api} />;
+      return <StackSort key={puzzleKey} api={api} />;
     case 'func':
-      return <FunctionMachine key={`func-${api.level}`} api={api} />;
+      return <FunctionMachine key={puzzleKey} api={api} />;
     case 'pixel':
-      return <PixelLogic key={`pixel-${api.level}`} api={api} />;
+      return <PixelLogic key={puzzleKey} api={api} />;
     case 'matrix':
-      return <MatrixComplete key={`matrix-${api.level}`} api={api} />;
+      return <MatrixComplete key={puzzleKey} api={api} />;
 
     // Track 2
     case 'digit':
-      return <DigitChallenge key={`digit-${api.level}`} api={api} />;
+      return <DigitChallenge key={puzzleKey} api={api} />;
     case 'grid':
-      return <GridChallenge key={`grid-${api.level}`} api={api} />;
+      return <GridChallenge key={puzzleKey} api={api} />;
     case 'motion':
-      return <MotionChallenge key={`motion-${api.level}`} api={api} />;
+      return <MotionChallenge key={puzzleKey} api={api} />;
     case 'switch':
-      return <SwitchChallenge key={`switch-${api.level}`} api={api} />;
+      return <SwitchChallenge key={puzzleKey} api={api} />;
     case 'sudo':
-      return <GeoSudo key={`sudo-${api.level}`} api={api} />;
+      return <GeoSudo key={puzzleKey} api={api} />;
     case 'inductive':
-      return <InductiveChallenge key={`inductive-${api.level}`} api={api} />;
+      return <InductiveChallenge key={puzzleKey} api={api} />;
 
     default:
       return <div className="text-white p-6">Game not found.</div>;

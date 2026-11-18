@@ -3,6 +3,8 @@ import { GameMetadata, GameResult } from '../types';
 import { Trophy, RotateCcw, Home, ArrowRight, CheckCircle2, Sparkles, Award } from 'lucide-react';
 import { fireCelebration } from '../utils/confetti';
 import { sound } from '../utils/sound';
+import { useAuth } from '../context/AuthContext';
+import { isSupabaseConfigured } from '../services/supabase';
 
 interface ResultModalProps {
   game: GameMetadata;
@@ -23,6 +25,9 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   onPlayAgain,
   onHome,
 }) => {
+  const { user, isSupabaseOnline } = useAuth();
+  const savedToCloud = Boolean(isSupabaseConfigured && isSupabaseOnline && user && !user.isGuest);
+
   useEffect(() => {
     sound.playVictory();
     if ((result.performanceIndex && result.performanceIndex >= 50) || result.level >= 3) {
@@ -50,9 +55,9 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
           <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-400/30 shadow-sm">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Telemetry Saved to Cloud Database</span>
+            <span>{savedToCloud ? 'Telemetry Saved to Supabase Cloud' : 'Telemetry Saved Locally (Sandbox)'}</span>
           </span>
-          {result.xpEarned && (
+          {result.xpEarned != null && result.xpEarned > 0 && (
             <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/30 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>+{result.xpEarned} XP Earned</span>
@@ -65,7 +70,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
       {/* Main Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {/* Performance Index (Track 1) or Total Score (Track 2) */}
-        {result.performanceIndex !== undefined ? (
+        {result.performanceIndex != null ? (
           <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center">
             <div className="text-4xl font-black text-cyan-400 font-mono">
               {result.performanceIndex}

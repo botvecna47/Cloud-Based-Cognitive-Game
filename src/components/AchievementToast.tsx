@@ -22,7 +22,11 @@ export const AchievementToast: React.FC<AchievementToastProps> = ({ achievement,
   if (!achievement) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full p-4 rounded-2xl bg-slate-900/95 border-2 border-amber-400/80 shadow-2xl shadow-amber-500/20 backdrop-blur-md animate-bounce-subtle flex items-start gap-3.5">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-6 right-6 z-50 max-w-sm w-full p-4 rounded-2xl bg-slate-900/95 border-2 border-amber-400/80 shadow-2xl shadow-amber-500/20 backdrop-blur-md animate-float-subtle flex items-start gap-3.5"
+    >
       <div className="w-12 h-12 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-2xl shrink-0">
         {achievement.icon}
       </div>

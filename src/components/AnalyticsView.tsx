@@ -11,7 +11,11 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   useEffect(() => {
     async function load() {
-      if (!user) return;
+      if (!user) {
+        setAnalytics(null);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       const data = await dbService.getUserAnalytics(user.id);
       setAnalytics(data);
@@ -20,11 +24,26 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     load();
   }, [user]);
 
-  if (isLoading || !analytics) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
         <div className="animate-spin text-3xl">🧠</div>
         <p className="text-sm">Calculating cognitive telemetry analytics...</p>
+      </div>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-4">
+        <p className="text-sm">Sign in or play a practice round to generate your cognitive analytics.</p>
+        <button
+          type="button"
+          onClick={onBack}
+          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold cursor-pointer"
+        >
+          Back to Arena
+        </button>
       </div>
     );
   }
@@ -74,7 +93,7 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       {/* Readiness Overview Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-navy via-indigo-950 to-slate-900 border border-cyan-500/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-[#1E2761] via-indigo-950 to-slate-900 border border-cyan-500/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="relative w-24 h-24 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 flex flex-col items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
             <span className="text-3xl font-black font-mono text-cyan-300">{avgAbility}</span>

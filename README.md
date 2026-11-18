@@ -8,25 +8,22 @@ A production-grade **React 19 + TypeScript + Tailwind CSS** platform backed by *
 
 The platform is designed following the **Principle of Least Privilege**, **OWASP ASVS Level 2 guidelines**, and defense-in-depth security standards:
 
-1. **Row Level Security (RLS) & Multi-Tenant Data Isolation**:
-   - Every single table (`profiles`, `game_sessions`, `session_level_records`, `user_high_scores`, `user_achievements`, `user_settings`) has RLS enforced.
-   - Users can only read, write, and update their own game sessions and telemetry (`auth.uid() = user_id`).
-   - Public leaderboards query a secure view (`leaderboard_view`) with `security_invoker = true` that only exposes non-sensitive player statistics (username, avatar, rank tier, total XP, high score).
-2. **Anti-Tampering Trigger Architecture**:
-   - Total XP, rank tier, and high scores are calculated and maintained server-side via PostgreSQL `BEFORE INSERT ON game_sessions` trigger with `SECURITY DEFINER` and hardened `SET search_path = public`.
-   - Direct client modification of `total_xp`, `rank_tier`, or `games_played` on `public.profiles` is blocked by the `protect_profile_stats` trigger.
-   - Internal trigger procedures have `REVOKE EXECUTE FROM public, anon, authenticated` to prevent direct invocation attacks.
-3. **Database-Level Integrity Constraints & Input Validation**:
-   - `username`: Enforced regex `^[a-zA-Z0-9_\-\.]{3,24}$` preventing XSS payloads and script tags.
-   - `avatar_url`: Strict enum check against allowed avatar assets.
-   - Numerical metrics: `score` (0-50,000), `accuracy_pct` (0-100), `duration_seconds` (1-7,200), and `time_taken_seconds` (0.01-600.00) are constrained with SQL `CHECK` bounds.
-4. **Content Security Policy (CSP) & Client Hardening**:
-   - Strict Content Security Policy meta tags in `index.html` preventing unauthorized script execution, inline injections, and clickjacking:
-     - `default-src 'self'`
-     - `script-src 'self'`
-     - `connect-src 'self' https://*.supabase.co wss://*.supabase.co`
-     - `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`
-   - `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `Permissions-Policy`.
+1. **Row Level Security (RLS) & Column-Level PII Isolation**:
+   - Every table (`profiles`, `game_sessions`, `session_level_records`, `user_high_scores`, `user_achievements`, `user_settings`) enforces RLS.
+   - `REVOKE SELECT (email) ON public.profiles FROM public, anon, authenticated;` guarantees user email addresses are never readable via public API queries.
+   - Public leaderboards query `public.leaderboard_view` (`security_invoker = true`), exposing only non-sensitive player stats.
+2. **Zero-Trust Anti-Cheat Trigger Architecture**:
+   - Direct client `INSERT`/`UPDATE` policies on `user_high_scores` and `user_achievements` are removed — only trusted `SECURITY DEFINER` triggers (`process_game_session`, `process_level_record`) with hardened `SET search_path = public` can write them.
+   - Direct client modification of `total_xp`, `rank_tier`, or `games_played` on `public.profiles` is blocked on both `INSERT` and `UPDATE` by `protect_profile_stats`.
+   - Internal trigger procedures have `REVOKE EXECUTE FROM public, anon, authenticated`.
+3. **Database-Level Integrity Constraints & Composite Indexing**:
+   - `username`: Enforced regex `^[a-zA-Z0-9_\-\.]{3,24}$` preventing XSS payloads.
+   - `avatar_url`: Strict allowlist check matching the 8 official avatars.
+   - Numerical bounds: `score` (0-50,000), `accuracy_pct` (0-100), `duration_seconds` (1-7,200), `time_taken_seconds` (0.01-600.00), and `moves_count` (1-500).
+   - Composite index `(user_id, created_at DESC)` on `game_sessions` and explicit column projections (no `SELECT *`).
+4. **Content Security Policy (CSP) & HTTP Security Headers**:
+   - Build-time production CSP injected via `vite.config.ts` (`default-src 'self'; script-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'`) while keeping Vite HMR & React Fast Refresh working smoothly in `npm run dev`.
+   - HTTP security headers configured in `vite.config.ts` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, and `frame-ancestors 'none'` in preview/production).
    - Client-side input sanitization in `src/services/dbService.ts` and `src/context/AuthContext.tsx`.
 5. **Zero Service-Role Leakage**:
    - The application strictly uses public `VITE_SUPABASE_ANON_KEY` and never exposes administrative `service_role` secrets on the client.

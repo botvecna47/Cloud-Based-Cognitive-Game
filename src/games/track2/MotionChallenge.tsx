@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { GameAPI } from '../../types';
 import { sound } from '../../utils/sound';
 
@@ -70,16 +70,20 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   const [ballPos, setBallPos] = useState<number>(puzzle.ball);
   const [moves, setMoves] = useState<number>(0);
   const [hasWon, setHasWon] = useState<boolean>(false);
+  const winTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     setBallPos(puzzle.ball);
     setMoves(0);
     setHasWon(false);
+    return () => {
+      if (winTimeoutRef.current) clearTimeout(winTimeoutRef.current);
+    };
   }, [puzzle]);
 
   const move = useCallback(
     (dr: number, dc: number) => {
-      if (hasWon) return;
+      if (hasWon || api.isPaused) return;
 
       const r = Math.floor(ballPos / puzzle.n);
       const c = ballPos % puzzle.n;
@@ -91,23 +95,28 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       if (puzzle.rocks.has(nextPos)) return;
 
       sound.playClick();
+      const nextMoves = moves + 1;
       setBallPos(nextPos);
-      setMoves(m => m + 1);
+      setMoves(nextMoves);
 
       if (nextPos === puzzle.hole) {
         setHasWon(true);
         sound.playCorrect();
-        setTimeout(() => {
-          api.correct();
+        winTimeoutRef.current = window.setTimeout(() => {
+          api.correct({ moves: nextMoves });
         }, 300);
       }
     },
-    [ballPos, hasWon, puzzle, api]
+    [ballPos, hasWon, moves, puzzle, api]
   );
 
-  // Keyboard navigation
+  // Keyboard navigation (disabled when paused or typing in inputs/modals)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (api.isPaused) return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
         e.preventDefault();
       }
@@ -119,7 +128,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [move]);
+  }, [move, api.isPaused]);
 
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
@@ -128,10 +137,10 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           Guide the red ball to the <span className="text-cyan-400 font-bold">◎ Target Hole</span>:
         </p>
         <div className="flex items-center justify-center gap-4 mt-2">
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-slate-400 tabular-nums">
             Moves: <strong className="text-white font-mono text-base">{moves}</strong>
           </span>
-          <span className="text-xs text-slate-500 bg-slate-800 px-2.5 py-1 rounded-md">
+          <span className="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md tabular-nums">
             Optimal: ~{puzzle.shortestPath} moves
           </span>
         </div>
@@ -185,6 +194,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       {/* On-Screen D-Pad & Controls */}
       <div className="flex flex-col items-center gap-1.5">
         <button
+          type="button"
           onClick={() => move(-1, 0)}
           aria-label="Move up"
           className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
@@ -193,6 +203,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
         </button>
         <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={() => move(0, -1)}
             aria-label="Move left"
             className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
@@ -200,6 +211,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             ←
           </button>
           <button
+            type="button"
             onClick={() => move(1, 0)}
             aria-label="Move down"
             className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
@@ -207,6 +219,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             ↓
           </button>
           <button
+            type="button"
             onClick={() => move(0, 1)}
             aria-label="Move right"
             className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"

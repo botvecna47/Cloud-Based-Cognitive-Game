@@ -1,7 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured, testSupabaseConnection } from '../services/supabase';
 import { UserProfile } from '../types';
-import { dbService, calculateRank, sanitizeUsername, sanitizeAvatar } from '../services/dbService';
+import {
+  dbService,
+  calculateRank,
+  sanitizeUsername,
+  sanitizeAvatar,
+  loadLocalProfile,
+  saveLocalProfile,
+  clearLocalProfile,
+} from '../services/dbService';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -31,6 +39,9 @@ function sanitizeAuthError(rawMsg: string): string {
   return rawMsg;
 }
 
+const PROFILE_COLUMNS =
+  'id, username, avatar_url, total_xp, rank_tier, games_played, best_performance_index, created_at';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -38,13 +49,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [connectionStatusMessage, setConnectionStatusMessage] = useState<string>('Initializing...');
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Initialize and check Supabase auth state
+  // Load authenticated Supabase user profile (explicit columns, email comes from Auth session)
   const loadProfileForUser = useCallback(async (supabaseUserId: string, email?: string) => {
     if (!supabase) return;
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(PROFILE_COLUMNS)
         .eq('id', supabaseUserId)
         .maybeSingle();
 
@@ -54,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser({
           id: data.id,
           username: sanitizeUsername(data.username),
-          email: data.email || email,
+          email,
           avatarUrl: sanitizeAvatar(data.avatar_url),
           totalXp: data.total_xp || 0,
           rankTier: data.rank_tier || calculateRank(data.total_xp || 0),
@@ -64,7 +75,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: data.created_at,
         });
       } else {
-        // Fallback: profile row not created by trigger yet, create manually
         const derivedName = email ? email.split('@')[0] : 'Player_' + supabaseUserId.slice(0, 5);
         const cleanName = sanitizeUsername(derivedName);
         const { data: newProfile, error: insertErr } = await supabase
@@ -72,17 +82,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .insert({
             id: supabaseUserId,
             username: cleanName,
-            email: email,
             avatar_url: 'brain-blue',
           })
-          .select()
+          .select(PROFILE_COLUMNS)
           .single();
 
         if (!insertErr && newProfile) {
           setUser({
             id: newProfile.id,
             username: sanitizeUsername(newProfile.username),
-            email: newProfile.email,
+            email,
             avatarUrl: sanitizeAvatar(newProfile.avatar_url),
             totalXp: 0,
             rankTier: 'Bronze',
@@ -97,19 +106,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  // Refresh user profile in BOTH Supabase Cloud mode and Local Sandbox / Guest mode
   const refreshProfile = useCallback(async () => {
-    if (user && !user.isGuest && supabase) {
+    if (user && !user.isGuest && isSupabaseConfigured && supabase) {
       await loadProfileForUser(user.id, user.email);
+      return;
+    }
+    const updatedLocal = loadLocalProfile();
+    if (updatedLocal) {
+      setUser(prev => (prev ? { ...prev, ...updatedLocal } : updatedLocal));
     }
   }, [user, loadProfileForUser]);
 
   useEffect(() => {
     let isMounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
+
+    function createDefaultGuest() {
+      const guestUser: UserProfile = {
+        id: 'guest-' + Math.random().toString(36).substring(2, 9),
+        username: 'AptitudeCadet',
+        avatarUrl: 'brain-blue',
+        totalXp: 0,
+        rankTier: 'Bronze',
+        gamesPlayed: 0,
+        bestPerformanceIndex: 0,
+        isGuest: true,
+      };
+      saveLocalProfile(guestUser);
+      setUser(guestUser);
+    }
 
     async function initAuth() {
       setIsLoading(true);
 
-      // 1. Test Supabase connectivity
       const status = await testSupabaseConnection();
       if (!isMounted) return;
 
@@ -117,70 +147,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setConnectionStatusMessage(status.message);
 
       if (isSupabaseConfigured && supabase) {
-        // Get active session
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!isMounted) return;
+
         if (session?.user) {
           await loadProfileForUser(session.user.id, session.user.email);
         } else {
-          // Check for saved guest or default demo session
-          const savedGuest = localStorage.getItem('mount_adept_guest_profile');
-          if (savedGuest) {
-            try {
-              setUser(JSON.parse(savedGuest));
-            } catch {
-              setUser(null);
-            }
+          const savedLocal = loadLocalProfile();
+          if (savedLocal) {
+            setUser(savedLocal);
+          } else {
+            createDefaultGuest();
           }
         }
 
-        // Listen for auth changes
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-          if (event === 'SIGNED_IN' && session?.user) {
-            await loadProfileForUser(session.user.id, session.user.email);
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+          if (!isMounted) return;
+          if (event === 'SIGNED_IN' && nextSession?.user) {
+            await loadProfileForUser(nextSession.user.id, nextSession.user.email);
           } else if (event === 'SIGNED_OUT') {
-            setUser(null);
-          }
-        });
-
-        setIsLoading(false);
-        return () => {
-          authListener.subscription.unsubscribe();
-        };
-      } else {
-        // Local Sandbox Mode: Load or create local guest profile
-        const savedGuest = localStorage.getItem('mount_adept_guest_profile');
-        if (savedGuest) {
-          try {
-            setUser(JSON.parse(savedGuest));
-          } catch {
             createDefaultGuest();
           }
+        });
+        authSubscription = authListener.subscription;
+      } else {
+        const savedLocal = loadLocalProfile();
+        if (savedLocal) {
+          setUser(savedLocal);
         } else {
           createDefaultGuest();
         }
-        setIsLoading(false);
       }
-    }
 
-    function createDefaultGuest() {
-      const guestUser: UserProfile = {
-        id: 'guest-' + Math.random().toString(36).substring(2, 9),
-        username: 'AptitudeCadet',
-        avatarUrl: 'brain-blue',
-        totalXp: 350,
-        rankTier: 'Bronze',
-        gamesPlayed: 2,
-        bestPerformanceIndex: 65,
-        isGuest: true,
-      };
-      localStorage.setItem('mount_adept_guest_profile', JSON.stringify(guestUser));
-      setUser(guestUser);
+      if (isMounted) setIsLoading(false);
     }
 
     initAuth();
 
     return () => {
       isMounted = false;
+      authSubscription?.unsubscribe();
     };
   }, [loadProfileForUser]);
 
@@ -188,7 +196,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setAuthError(null);
 
-    // Input Validation
     const cleanEmail = (email || '').trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!cleanEmail || !emailRegex.test(cleanEmail)) {
@@ -203,20 +210,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (!isSupabaseConfigured || !supabase) {
-      // Local sandbox simulation
+      const existing = loadLocalProfile();
       const localProfile: UserProfile = {
         id: 'user-' + cleanEmail.replace(/[^a-zA-Z0-9]/g, ''),
         username: sanitizeUsername(cleanEmail.split('@')[0]),
         email: cleanEmail,
-        avatarUrl: 'brain-cyan',
-        totalXp: 1200,
-        rankTier: 'Silver',
-        gamesPlayed: 5,
-        bestPerformanceIndex: 78,
+        avatarUrl: existing?.avatarUrl || 'brain-blue',
+        totalXp: existing?.totalXp ?? 1200,
+        rankTier: calculateRank(existing?.totalXp ?? 1200),
+        gamesPlayed: existing?.gamesPlayed ?? 0,
+        bestPerformanceIndex: existing?.bestPerformanceIndex ?? 0,
         isGuest: false,
       };
+      saveLocalProfile(localProfile);
       setUser(localProfile);
-      localStorage.setItem('mount_adept_guest_profile', JSON.stringify(localProfile));
       return { success: true };
     }
 
@@ -231,8 +238,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await loadProfileForUser(data.user.id, data.user.email);
       }
       return { success: true };
-    } catch (err: any) {
-      const safeMsg = sanitizeAuthError(err?.message);
+    } catch (err: unknown) {
+      const raw = err instanceof Error ? err.message : '';
+      const safeMsg = sanitizeAuthError(raw);
       setAuthError(safeMsg);
       return { success: false, error: safeMsg };
     }
@@ -242,7 +250,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, username: string) => {
     setAuthError(null);
 
-    // Input Validation
     const cleanEmail = (email || '').trim().toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!cleanEmail || !emailRegex.test(cleanEmail)) {
@@ -263,15 +270,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: 'user-' + Math.random().toString(36).substring(2, 9),
         username: cleanUsername,
         email: cleanEmail,
-        avatarUrl: 'brain-cyan',
+        avatarUrl: 'brain-blue',
         totalXp: 0,
         rankTier: 'Bronze',
         gamesPlayed: 0,
         bestPerformanceIndex: 0,
         isGuest: false,
       };
+      saveLocalProfile(localProfile);
       setUser(localProfile);
-      localStorage.setItem('mount_adept_guest_profile', JSON.stringify(localProfile));
       return { success: true };
     }
 
@@ -297,8 +304,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await loadProfileForUser(data.user.id, data.user.email);
       }
       return { success: true };
-    } catch (err: any) {
-      const safeMsg = sanitizeAuthError(err?.message);
+    } catch (err: unknown) {
+      const raw = err instanceof Error ? err.message : '';
+      const safeMsg = sanitizeAuthError(raw);
       setAuthError(safeMsg);
       return { success: false, error: safeMsg };
     }
@@ -309,7 +317,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (supabase) {
       await supabase.auth.signOut();
     }
-    localStorage.removeItem('mount_adept_guest_profile');
+    clearLocalProfile();
     loginAsGuest();
   };
 
@@ -326,7 +334,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       bestPerformanceIndex: 0,
       isGuest: true,
     };
-    localStorage.setItem('mount_adept_guest_profile', JSON.stringify(guestUser));
+    saveLocalProfile(guestUser);
     setUser(guestUser);
   };
 
@@ -334,10 +342,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateUserProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return;
     const updated = await dbService.updateProfile(user.id, updates);
-    setUser(prev => (prev ? { ...prev, ...updated } : updated));
-    if (user.isGuest) {
-      localStorage.setItem('mount_adept_guest_profile', JSON.stringify({ ...user, ...updated }));
-    }
+    setUser(prev => {
+      const merged = prev ? { ...prev, ...updated } : updated;
+      if (merged.isGuest || !isSupabaseConfigured || !supabase) {
+        saveLocalProfile(merged);
+      }
+      return merged;
+    });
   };
 
   return (

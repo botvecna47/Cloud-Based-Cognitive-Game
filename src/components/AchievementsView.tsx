@@ -12,7 +12,11 @@ export const AchievementsView: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
   useEffect(() => {
     async function load() {
-      if (!user) return;
+      if (!user) {
+        setAchievements([]);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       const data = await dbService.getUserAchievements(user.id);
       setAchievements(data);
@@ -57,7 +61,7 @@ export const AchievementsView: React.FC<{ onBack: () => void }> = ({ onBack }) =
       </div>
 
       {/* Progress Showcase Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-navy via-indigo-950 to-slate-900 border border-amber-500/30 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-[#1E2761] via-indigo-950 to-slate-900 border border-amber-500/30 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-amber-400 text-xs font-extrabold uppercase tracking-wider mb-1">
             <Sparkles className="w-4 h-4" />

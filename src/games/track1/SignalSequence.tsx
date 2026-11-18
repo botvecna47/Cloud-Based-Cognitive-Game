@@ -60,7 +60,8 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
 
     sound.playSignalTone(index);
     setActivePad(index);
-    window.setTimeout(() => setActivePad(null), 160);
+    const flashTimer = window.setTimeout(() => setActivePad(null), 160);
+    timeoutRefs.current.push(flashTimer);
 
     if (index === sequence[userStep]) {
       const nextStep = userStep + 1;

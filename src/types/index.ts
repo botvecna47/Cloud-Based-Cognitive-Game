@@ -44,7 +44,8 @@ export interface GameMetadata {
 
 export interface GameAPI {
   level: number;
-  correct: () => void;
+  isPaused?: boolean;
+  correct: (meta?: { moves?: number }) => void;
   wrong: () => void;
   onAction?: () => void;
 }
@@ -54,6 +55,7 @@ export interface SessionLevelRecord {
   timeTakenSeconds: number;
   scoreEarned: number;
   isCorrect: boolean;
+  moves?: number;
 }
 
 export interface GameResult {
@@ -62,6 +64,7 @@ export interface GameResult {
   gameName: string;
   track: TrackId;
   mode?: GameMode;
+  marathonCompleted?: boolean;
   score: number;
   level: number; // levels completed
   correct: number;

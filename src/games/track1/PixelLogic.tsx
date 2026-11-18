@@ -121,7 +121,7 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
           }}
         >
           {/* Top-left empty corner */}
-          <div className="w-full h-12 flex items-center justify-center text-xs text-slate-500 font-bold border-b border-r border-slate-700/60">
+          <div className="w-full min-h-12 py-1 flex items-center justify-center text-xs text-slate-500 font-bold border-b border-r border-slate-700/60">
             CLUES
           </div>
 
@@ -129,7 +129,7 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
           {puzzle.colClues.map((clue, cIdx) => (
             <div
               key={cIdx}
-              className="h-12 flex flex-col items-center justify-end pb-1 text-xs font-mono font-bold text-cyan-300 border-b border-slate-700/60 leading-tight"
+              className="min-h-12 py-1 flex flex-col items-center justify-end text-xs font-mono font-bold text-cyan-300 border-b border-slate-700/60 leading-tight"
             >
               {clue.map((num, i) => (
                 <span key={i}>{num}</span>

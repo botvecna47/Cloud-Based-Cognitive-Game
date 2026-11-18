@@ -30,13 +30,15 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   const len = Math.min(3 + Math.floor(L / 2), 5);
 
   const puzzle = useMemo(() => {
-    const palette = sample([...SHAPES], len);
     const colorKeys = sample(Object.keys(COLORS).filter(c => c !== 'white' && c !== 'navy'), 3);
 
-    const makeItem = (): SwitchItem => ({
-      s: palette[Math.floor(Math.random() * palette.length)],
-      c: colorKeys[Math.floor(Math.random() * colorKeys.length)],
-    });
+    const makeUniqueSeq = (): SwitchItem[] => {
+      const seqShapes = sample([...SHAPES], len);
+      return seqShapes.map(s => ({
+        s,
+        c: colorKeys[Math.floor(Math.random() * colorKeys.length)],
+      }));
+    };
 
     const perms: Record<string, (arr: SwitchItem[]) => SwitchItem[]> = {
       reverse: arr => arr.slice().reverse(),
@@ -53,10 +55,10 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
     const chosenRuleKey = ruleKeys[Math.floor(Math.random() * ruleKeys.length)];
     const ruleFn = perms[chosenRuleKey];
 
-    const exampleIn = Array.from({ length: len }, makeItem);
+    const exampleIn = makeUniqueSeq();
     const exampleOut = ruleFn(exampleIn);
 
-    const newIn = Array.from({ length: len }, makeItem);
+    const newIn = makeUniqueSeq();
     const correct = ruleFn(newIn);
 
     const optionSet = [correct];
@@ -68,7 +70,7 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       }
     }
     while (optionSet.length < 4) {
-      const rnd = Array.from({ length: len }, makeItem);
+      const rnd = shuffle(newIn);
       if (!optionSet.some(x => sameSeq(x, rnd))) {
         optionSet.push(rnd);
       }

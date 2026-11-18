@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Volume2, VolumeX, BarChart3, Layers, Compass, Trophy, History, Award, Database, User, LogIn, Sliders } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { getAvatarIcon } from '../utils/avatars';
 import { useAuth } from '../context/AuthContext';
 import { isSupabaseConfigured } from '../services/supabase';
 
@@ -123,19 +124,19 @@ export const Header: React.FC<HeaderProps> = ({
               className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer shadow"
             >
               <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-xs">
-                🧠
+                {getAvatarIcon(user.avatarUrl)}
               </div>
               <div className="text-left hidden sm:block">
                 <div className="text-white font-bold leading-tight flex items-center gap-1.5">
                   <span>{user.username}</span>
                   {user.isGuest && (
-                    <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-slate-700 text-slate-400">
+                    <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">
                       Guest
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-cyan-400 font-mono">
-                  {user.totalXp} XP • {user.rankTier}
+                <div className="text-[10px] text-cyan-400 font-mono tabular-nums">
+                  {user.totalXp.toLocaleString()} XP • {user.rankTier}
                 </div>
               </div>
               <span

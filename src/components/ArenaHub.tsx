@@ -47,7 +47,7 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
 
       {/* Featured CTA Banner: Full Assessment Mode */}
       {currentTab === 'track1' && (
-        <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-navy via-indigo-900 to-slate-900 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-[#1E2761] via-indigo-900 to-slate-900 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="z-10">
             <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1">
               <Sparkles className="w-4 h-4" />
@@ -72,7 +72,7 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
       )}
 
       {currentTab === 'track2' && (
-        <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-navy via-indigo-900 to-slate-900 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="relative overflow-hidden p-6 rounded-2xl bg-gradient-to-r from-[#1E2761] via-indigo-900 to-slate-900 border border-cyan-500/30 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="z-10">
             <div className="flex items-center gap-2 text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1">
               <Flame className="w-4 h-4 text-amber-400" />
@@ -132,10 +132,11 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {displayGames.map(game => (
-            <div
+            <button
+              type="button"
               key={game.id}
               onClick={() => onSelectGame(game)}
-              className="p-5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/60 shadow-lg hover:shadow-cyan-500/10 transition-all duration-200 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[170px] group"
+              className="text-left p-5 rounded-2xl bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-cyan-500/60 shadow-lg hover:shadow-cyan-500/10 transition-all duration-200 transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between min-h-[170px] group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -155,13 +156,13 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 mt-3 border-t border-slate-800/80 text-xs font-semibold text-slate-400 group-hover:text-cyan-400 transition-colors">
+              <div className="flex items-center justify-between pt-4 mt-3 border-t border-slate-800/80 text-xs font-semibold text-slate-400 group-hover:text-cyan-400 transition-colors w-full">
                 <span>6 min standard round</span>
                 <span className="flex items-center gap-1">
                   Practise ➔
                 </span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>

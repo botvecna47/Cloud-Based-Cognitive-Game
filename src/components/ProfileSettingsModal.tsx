@@ -1,19 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { dbService } from '../services/dbService';
-import { User, Volume2, Download, LogOut, Check, X, Shield, Sparkles, Sliders } from 'lucide-react';
+import { User, Download, LogOut, Check, X, Sliders } from 'lucide-react';
 import { sound } from '../utils/sound';
-
-const AVATAR_OPTIONS = [
-  { id: 'brain-blue', label: 'Cyan Brain', icon: '🧠' },
-  { id: 'crown-gold', label: 'Gold Champion', icon: '👑' },
-  { id: 'lightning', label: 'Reflex', icon: '⚡' },
-  { id: 'rocket', label: 'Stratosphere', icon: '🚀' },
-  { id: 'diamond', label: 'Diamond Mind', icon: '💎' },
-  { id: 'robot', label: 'Neural Bot', icon: '🤖' },
-  { id: 'fire', label: 'Hot Streak', icon: '🔥' },
-  { id: 'star', label: 'Superstar', icon: '⭐' },
-];
+import { AVATAR_OPTIONS } from '../utils/avatars';
 
 interface ProfileSettingsModalProps {
   isOpen: boolean;
@@ -31,6 +21,25 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatarUrl || 'brain-blue');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Keep form synced whenever user loads/switches or modal opens
+  useEffect(() => {
+    if (user && isOpen) {
+      setUsername(user.username || '');
+      setSelectedAvatar(user.avatarUrl || 'brain-blue');
+      setSaveSuccess(false);
+    }
+  }, [user, isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen || !user) return null;
 
@@ -68,7 +77,12 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cadet Profile and Settings"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in"
+    >
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl">
         <button
           onClick={onClose}

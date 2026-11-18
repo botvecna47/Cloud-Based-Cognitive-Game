@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GameAPI } from '../../types';
 import { sound } from '../../utils/sound';
 
@@ -19,6 +19,8 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
   const [selectedPeg, setSelectedPeg] = useState<number | null>(null);
   const [moves, setMoves] = useState<number>(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSolved, setIsSolved] = useState<boolean>(false);
+  const winTimeoutRef = useRef<number | null>(null);
 
   // Initialize Hanoi
   useEffect(() => {
@@ -30,9 +32,14 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
     setSelectedPeg(null);
     setMoves(0);
     setErrorMsg(null);
+    setIsSolved(false);
+    return () => {
+      if (winTimeoutRef.current) clearTimeout(winTimeoutRef.current);
+    };
   }, [L, numDisks]);
 
   const handlePegClick = (pegIndex: number) => {
+    if (isSolved) return;
     setErrorMsg(null);
 
     // If nothing selected yet
@@ -81,9 +88,10 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
 
     // Check win condition (all disks on peg 2)
     if (pegIndex === 2 && dest.length === numDisks) {
+      setIsSolved(true);
       sound.playCorrect();
-      setTimeout(() => {
-        api.correct();
+      winTimeoutRef.current = window.setTimeout(() => {
+        api.correct({ moves: newMoves });
       }, 250);
     }
   };
@@ -119,10 +127,12 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
           const label = pegIdx === 0 ? 'Start' : pegIdx === 1 ? 'Aux' : 'Target 🎯';
 
           return (
-            <div
+            <button
+              type="button"
               key={pegIdx}
               onClick={() => handlePegClick(pegIdx)}
-              className={`relative flex flex-col items-center justify-end h-56 rounded-xl cursor-pointer transition-all duration-150 p-2 ${
+              aria-label={`${label} peg with ${pegDisks.length} disks${isSelected ? ', selected' : ''}`}
+              className={`relative flex flex-col items-center justify-end h-56 rounded-xl cursor-pointer transition-all duration-150 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
                 isSelected
                   ? 'bg-cyan-500/15 border-2 border-cyan-400 shadow-lg shadow-cyan-500/20'
                   : 'hover:bg-slate-800/60 border-2 border-transparent'
@@ -168,7 +178,7 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
               >
                 {label}
               </span>
-            </div>
+            </button>
           );
         })}
       </div>

@@ -29,6 +29,8 @@ type AppScreen =
   | 'analytics'
   | 'achievements';
 
+type HubTab = 'track1' | 'track2' | 'all';
+
 function sample<T>(arr: T[], k: number): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -43,6 +45,7 @@ export const App: React.FC = () => {
 
   const [screen, setScreen] = useState<AppScreen>('hub');
   const [currentTab, setCurrentTab] = useState<MainNavTab>('track1');
+  const [lastHubTab, setLastHubTab] = useState<HubTab>('track1');
 
   // Modal dialog states
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -54,16 +57,20 @@ export const App: React.FC = () => {
   const [selectedGameForModal, setSelectedGameForModal] = useState<GameMetadata>(COGNITIVE_GAMES[0]);
   const [durationSeconds, setDurationSeconds] = useState<number>(360);
   const [currentGameMode, setCurrentGameMode] = useState<GameMode>('practice');
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const [level, setLevel] = useState<number>(1);
+  const [puzzleNonce, setPuzzleNonce] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [lastResult, setLastResult] = useState<GameResult | null>(null);
 
-  // Granular level-by-level telemetry recording
+  // Granular level-by-level telemetry & pause-aware timing
   const levelRecordsRef = useRef<SessionLevelRecord[]>([]);
   const levelStartTimeRef = useRef<number>(Date.now());
+  const pauseStartedAtRef = useRef<number | null>(null);
+  const isSubmittingResultRef = useRef<boolean>(false);
 
   // Assessment Queue state
   const [assessmentQueue, setAssessmentQueue] = useState<GameMetadata[]>([]);
@@ -74,15 +81,40 @@ export const App: React.FC = () => {
   const [unlockedToast, setUnlockedToast] = useState<Achievement | null>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
-  const showToast = (message: string, isBad = false) => {
+  const showToast = useCallback((message: string, isBad = false) => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, isBad });
     toastTimeoutRef.current = window.setTimeout(() => {
       setToast(null);
     }, 1200);
-  };
+  }, []);
 
-  // Start single game practice from instructions
+  const handleDismissAchievementToast = useCallback(() => {
+    setUnlockedToast(null);
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    setIsPaused(false);
+    pauseStartedAtRef.current = null;
+    setAssessmentQueue([]);
+    setQueueProgress(undefined);
+    setCurrentTab(lastHubTab);
+    setScreen('hub');
+  }, [lastHubTab]);
+
+  // Pause-aware timer adjustment so paused seconds never count against level telemetry/score
+  const handlePauseChange = useCallback((nextPaused: boolean) => {
+    setIsPaused(nextPaused);
+    if (nextPaused) {
+      pauseStartedAtRef.current = Date.now();
+    } else if (pauseStartedAtRef.current !== null) {
+      const pausedDelta = Date.now() - pauseStartedAtRef.current;
+      levelStartTimeRef.current += pausedDelta;
+      pauseStartedAtRef.current = null;
+    }
+  }, []);
+
+  // Start single game practice from instructions or queue
   const handleStartGame = (
     game: GameMetadata,
     duration: number,
@@ -95,9 +127,13 @@ export const App: React.FC = () => {
     setDurationSeconds(duration);
     setCurrentGameMode(mode);
     setLevel(1);
+    setPuzzleNonce(n => n + 1);
     setScore(0);
     setCorrectCount(0);
     setAttemptCount(0);
+    setIsPaused(false);
+    pauseStartedAtRef.current = null;
+    isSubmittingResultRef.current = false;
     levelRecordsRef.current = [];
     levelStartTimeRef.current = Date.now();
 
@@ -136,36 +172,40 @@ export const App: React.FC = () => {
   };
 
   // Game API Handlers
-  const handleCorrect = useCallback(() => {
-    const elapsedSecs = Number((Math.max(1, (Date.now() - levelStartTimeRef.current) / 1000)).toFixed(2));
-    let reward = 0;
+  const handleCorrect = useCallback(
+    (meta?: { moves?: number }) => {
+      const elapsedSecs = Number(Math.max(0.2, (Date.now() - levelStartTimeRef.current) / 1000).toFixed(2));
+      let reward = 0;
 
-    if (activeGame.track === 'cognitive') {
-      const w = activeGame.weight || 1;
-      reward = Math.round((60 * w * level) / Math.max(3.5, elapsedSecs));
-    } else {
-      reward = Math.round((120 * level * level) / Math.max(2, elapsedSecs));
-    }
+      if (activeGame.track === 'cognitive') {
+        const w = activeGame.weight || 1;
+        reward = Math.round((60 * w * level) / Math.max(3.5, elapsedSecs));
+      } else {
+        reward = Math.round((120 * level * level) / Math.max(2, elapsedSecs));
+      }
 
-    // Record granular level telemetry
-    levelRecordsRef.current.push({
-      levelNumber: level,
-      timeTakenSeconds: elapsedSecs,
-      scoreEarned: reward,
-      isCorrect: true,
-    });
+      levelRecordsRef.current.push({
+        levelNumber: level,
+        timeTakenSeconds: elapsedSecs,
+        scoreEarned: reward,
+        isCorrect: true,
+        moves: meta?.moves,
+      });
 
-    setScore(s => s + reward);
-    setCorrectCount(c => c + 1);
-    setAttemptCount(a => a + 1);
-    setLevel(l => l + 1);
-    levelStartTimeRef.current = Date.now();
+      setScore(s => s + reward);
+      setCorrectCount(c => c + 1);
+      setAttemptCount(a => a + 1);
+      setLevel(l => l + 1);
+      setPuzzleNonce(n => n + 1);
+      levelStartTimeRef.current = Date.now();
 
-    showToast(`+${reward} points!`);
-  }, [activeGame, level]);
+      showToast(`+${reward} points!`);
+    },
+    [activeGame, level, showToast]
+  );
 
   const handleWrong = useCallback(() => {
-    const elapsedSecs = Number((Math.max(1, (Date.now() - levelStartTimeRef.current) / 1000)).toFixed(2));
+    const elapsedSecs = Number(Math.max(0.2, (Date.now() - levelStartTimeRef.current) / 1000).toFixed(2));
 
     levelRecordsRef.current.push({
       levelNumber: level,
@@ -175,12 +215,18 @@ export const App: React.FC = () => {
     });
 
     setAttemptCount(a => a + 1);
+    setPuzzleNonce(n => n + 1);
     levelStartTimeRef.current = Date.now();
     showToast('Not quite — next puzzle', true);
-  }, [level]);
+  }, [level, showToast]);
 
-  // Time expired or user completes round
+  // Time expired or user completes round (idempotency-guarded)
   const handleTimeUp = useCallback(async () => {
+    if (isSubmittingResultRef.current) return;
+    isSubmittingResultRef.current = true;
+    setIsPaused(false);
+    pauseStartedAtRef.current = null;
+
     const levelsCleared = level - 1;
     const acc = attemptCount > 0 ? correctCount / attemptCount : 0;
     const accuracyPct = Math.round(acc * 100);
@@ -201,11 +247,14 @@ export const App: React.FC = () => {
           : 'Keep practising';
     }
 
+    const isFinalMarathonGame = currentGameMode === 'marathon' && assessmentQueue.length === 0;
+
     const preliminaryResult: GameResult = {
       gameId: activeGame.id,
       gameName: activeGame.name,
       track: activeGame.track,
       mode: currentGameMode,
+      marathonCompleted: isFinalMarathonGame,
       score,
       level: levelsCleared,
       correct: correctCount,
@@ -217,7 +266,6 @@ export const App: React.FC = () => {
       durationSeconds,
     };
 
-    // Save to database (Supabase Cloud + Local sync fallback)
     const activeUserId = user?.id || 'guest-anon';
     const dbSaveResponse = await dbService.recordGameSession(
       activeUserId,
@@ -225,7 +273,7 @@ export const App: React.FC = () => {
       levelRecordsRef.current
     );
 
-    // Refresh user profile in context to show updated XP & rank tier
+    // Refresh user profile in context (both Cloud and Local/Guest) to show updated XP & rank tier
     await refreshProfile();
 
     const finalizedResult: GameResult = {
@@ -241,7 +289,18 @@ export const App: React.FC = () => {
 
     setLastResult(finalizedResult);
     setScreen('result');
-  }, [activeGame, level, score, correctCount, attemptCount, durationSeconds, currentGameMode, user, refreshProfile]);
+  }, [
+    activeGame,
+    level,
+    score,
+    correctCount,
+    attemptCount,
+    durationSeconds,
+    currentGameMode,
+    assessmentQueue.length,
+    user,
+    refreshProfile,
+  ]);
 
   // Next game in queue
   const handleNextInQueue = () => {
@@ -265,6 +324,7 @@ export const App: React.FC = () => {
     } else if (tab === 'achievements') {
       setScreen('achievements');
     } else {
+      setLastHubTab(tab);
       setScreen('hub');
     }
   };
@@ -277,10 +337,12 @@ export const App: React.FC = () => {
     }
   };
 
+  const anyModalOpen = isAuthOpen || isSettingsOpen || isSupabaseSetupOpen;
+
   return (
     <div className="min-h-screen text-slate-100 flex flex-col font-sans">
       <FlashToast toast={toast} />
-      <AchievementToast achievement={unlockedToast} onDismiss={() => setUnlockedToast(null)} />
+      <AchievementToast achievement={unlockedToast} onDismiss={handleDismissAchievementToast} />
 
       {/* Modals */}
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
@@ -306,11 +368,7 @@ export const App: React.FC = () => {
         <div className="bg-slate-900/90 backdrop-blur-md rounded-3xl p-5 sm:p-8 border border-slate-800 shadow-2xl relative min-h-[500px]">
           {screen === 'hub' && (
             <ArenaHub
-              currentTab={
-                currentTab === 'track1' || currentTab === 'track2' || currentTab === 'all'
-                  ? currentTab
-                  : 'track1'
-              }
+              currentTab={lastHubTab}
               onSelectGame={game => {
                 setSelectedGameForModal(game);
                 setScreen('instructions');
@@ -323,7 +381,7 @@ export const App: React.FC = () => {
             <InstructionsModal
               game={selectedGameForModal}
               onStart={duration => handleStartGame(selectedGameForModal, duration, 'practice')}
-              onBack={() => setScreen('hub')}
+              onBack={handleGoHome}
             />
           )}
 
@@ -333,14 +391,18 @@ export const App: React.FC = () => {
               level={level}
               score={score}
               durationSeconds={durationSeconds}
+              isPaused={isPaused}
+              onPauseChange={handlePauseChange}
               onTimeUp={handleTimeUp}
-              onQuit={() => setScreen('hub')}
+              onQuit={handleGoHome}
               queueProgress={queueProgress}
             >
               <GameRenderer
                 gameId={activeGame.id}
+                puzzleKey={`${activeGame.id}-${level}-${puzzleNonce}`}
                 api={{
                   level,
+                  isPaused: isPaused || anyModalOpen,
                   correct: handleCorrect,
                   wrong: handleWrong,
                 }}
@@ -356,21 +418,21 @@ export const App: React.FC = () => {
               nextGameName={assessmentQueue[0]?.name}
               onNextGame={handleNextInQueue}
               onPlayAgain={() => handleStartGame(activeGame, durationSeconds, currentGameMode)}
-              onHome={() => setScreen('hub')}
+              onHome={handleGoHome}
             />
           )}
 
           {screen === 'leaderboards' && (
-            <LeaderboardView onBack={() => setScreen('hub')} onPlayGame={handleDirectPlay} />
+            <LeaderboardView onBack={handleGoHome} onPlayGame={handleDirectPlay} />
           )}
 
           {screen === 'history' && (
-            <HistoryView onBack={() => setScreen('hub')} onPlayGame={handleDirectPlay} />
+            <HistoryView onBack={handleGoHome} onPlayGame={handleDirectPlay} />
           )}
 
-          {screen === 'analytics' && <AnalyticsView onBack={() => setScreen('hub')} />}
+          {screen === 'analytics' && <AnalyticsView onBack={handleGoHome} />}
 
-          {screen === 'achievements' && <AchievementsView onBack={() => setScreen('hub')} />}
+          {screen === 'achievements' && <AchievementsView onBack={handleGoHome} />}
         </div>
 
         {/* Footer info */}

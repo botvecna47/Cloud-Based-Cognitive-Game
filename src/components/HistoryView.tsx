@@ -20,7 +20,11 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
   const [searchQuery, setSearchQuery] = useState('');
 
   const loadHistory = async () => {
-    if (!user) return;
+    if (!user) {
+      setHistory([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     const data = await dbService.getUserHistory(user.id, trackFilter, gameFilter, 100);
     setHistory(data);
@@ -167,12 +171,14 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
             return (
               <div
                 key={item.id || idx}
-                className="bg-slate-900/80 hover:bg-slate-850 border border-slate-800 rounded-2xl transition-all overflow-hidden shadow-md"
+                className="bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 rounded-2xl transition-all overflow-hidden shadow-md"
               >
                 {/* Main Row */}
-                <div
+                <button
+                  type="button"
                   onClick={() => toggleExpand(item)}
-                  className="p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 cursor-pointer select-none"
+                  aria-expanded={isExpanded}
+                  className="w-full text-left p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
                 >
                   <div className="flex items-center gap-3.5">
                     <div className="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center text-xl shrink-0">
@@ -214,7 +220,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                       </div>
                     </div>
 
-                    {item.performanceIndex !== undefined && (
+                    {item.performanceIndex != null && (
                       <div className="hidden sm:block text-right">
                         <div className="text-base font-mono font-bold text-amber-300">
                           {item.performanceIndex} / 100
@@ -229,7 +235,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                       {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                     </div>
                   </div>
-                </div>
+                </button>
 
                 {/* Expandable Granular Level Telemetry */}
                 {isExpanded && (
@@ -258,9 +264,9 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2">
-                        {telemetry.map(lvl => (
+                        {telemetry.map((lvl, lvlIdx) => (
                           <div
-                            key={lvl.levelNumber}
+                            key={`${lvl.levelNumber}-${lvlIdx}`}
                             className={`p-2.5 rounded-xl border flex flex-col text-xs ${
                               lvl.isCorrect
                                 ? 'bg-slate-900 border-slate-800 text-slate-300'

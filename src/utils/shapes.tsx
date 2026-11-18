@@ -7,6 +7,7 @@ export const COLORS: Record<string, string> = {
   amber: '#e7a400',
   purple: '#8b5cf6',
   teal: '#128fb0',
+  cyan: '#20B8CF',
   navy: '#1E2761',
   white: '#ffffff',
 };

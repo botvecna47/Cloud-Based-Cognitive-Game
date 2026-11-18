@@ -243,6 +243,6 @@ export const ACHIEVEMENTS_CATALOG = [
   { id: 'ach-12', code: 'PERFECT_INDEX', title: 'Aptitude Prodigy', description: 'Achieve an official Performance Index of 80+ (Excellent Band)', icon: '👑', xpReward: 500, category: 'mastery' as const },
   { id: 'ach-13', code: 'SILVER_RANK', title: 'Rising Contender', description: 'Reach Silver Tier rank (1,000+ XP)', icon: '🥈', xpReward: 200, category: 'general' as const },
   { id: 'ach-14', code: 'GOLD_RANK', title: 'Aptitude Veteran', description: 'Reach Gold Tier rank (3,000+ XP)', icon: '🥇', xpReward: 400, category: 'general' as const },
-  { id: 'ach-15', code: 'DIAMOND_RANK', title: 'Elite Strategist', description: 'Reach Diamond Tier rank (7,500+ XP)', icon: '💎', xpReward: 800, category: 'general' as const },
-  { id: 'ach-16', code: 'GRANDMASTER', title: 'Cognitive Grandmaster', description: 'Reach Grandmaster Tier (15,000+ XP)', icon: '🌌', xpReward: 1500, category: 'mastery' as const },
+  { id: 'ach-15', code: 'DIAMOND_RANK', title: 'Elite Strategist', description: 'Reach Diamond Tier rank (9,000+ XP)', icon: '💎', xpReward: 800, category: 'general' as const },
+  { id: 'ach-16', code: 'GRANDMASTER', title: 'Cognitive Grandmaster', description: 'Reach Grandmaster Tier (25,000+ XP)', icon: '🌌', xpReward: 1500, category: 'mastery' as const },
 ];

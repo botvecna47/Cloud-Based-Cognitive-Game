@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/dbService';
 import { LeaderboardEntry, GameId } from '../types';
 import { ALL_GAMES } from '../data/games';
-import { Trophy, Medal, Crown, ArrowLeft, RefreshCw, Flame, Search } from 'lucide-react';
+import { Trophy, Crown, ArrowLeft, RefreshCw, Search, Play } from 'lucide-react';
 import { sound } from '../utils/sound';
+import { getAvatarIcon } from '../utils/avatars';
 
 export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId: GameId) => void }> = ({
   onBack,
@@ -62,9 +63,24 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
         </div>
 
         <div className="flex items-center gap-2">
+          {selectedGame !== 'all' && (
+            <button
+              type="button"
+              onClick={() => {
+                sound.playClick();
+                onPlayGame(selectedGame as GameId);
+              }}
+              className="px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>Play Game</span>
+            </button>
+          )}
           <button
+            type="button"
             onClick={handleRefresh}
             title="Refresh Leaderboard"
+            aria-label="Refresh Leaderboard"
             className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -135,7 +151,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
             <div className="flex flex-col items-center">
               <div className="relative mb-2">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 p-0.5 shadow-lg shadow-slate-400/20 flex items-center justify-center text-2xl">
-                  🧠
+                  {getAvatarIcon(topThree[1].avatarUrl)}
                 </div>
                 <div className="absolute -top-2 -right-1.5 px-2 py-0.5 bg-slate-300 text-slate-950 font-black text-xs rounded-full shadow">
                   #2
@@ -159,7 +175,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
               <Crown className="w-7 h-7 text-amber-400 mb-1 animate-bounce" />
               <div className="relative mb-2">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-200 p-0.5 shadow-xl shadow-amber-400/30 flex items-center justify-center text-3xl">
-                  👑
+                  {getAvatarIcon(topThree[0].avatarUrl)}
                 </div>
                 <div className="absolute -top-2 -right-1.5 px-2.5 py-0.5 bg-amber-400 text-slate-950 font-black text-xs rounded-full shadow">
                   #1
@@ -182,7 +198,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
             <div className="flex flex-col items-center">
               <div className="relative mb-2">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-700 to-orange-400 p-0.5 shadow-lg shadow-amber-700/20 flex items-center justify-center text-2xl">
-                  ⚡
+                  {getAvatarIcon(topThree[2].avatarUrl)}
                 </div>
                 <div className="absolute -top-2 -right-1.5 px-2 py-0.5 bg-amber-700 text-white font-black text-xs rounded-full shadow">
                   #3
@@ -251,7 +267,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
                   </td>
                   <td className="py-3 px-3 font-sans font-semibold text-white flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base">
-                      {idx === 0 ? '👑' : '🧠'}
+                      {getAvatarIcon(player.avatarUrl)}
                     </div>
                     <div>
                       <div>{player.username}</div>
