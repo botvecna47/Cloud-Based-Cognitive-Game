@@ -1,6 +1,6 @@
-# MOUNT ADEPT — Cloud-Based Cognitive & Game-Based Assessment Platform
+# Gamefied Apti — Cloud-Based Cognitive & Aptitude Game Arena
 
-A production-grade **React 19 + TypeScript + Tailwind CSS** platform backed by **Supabase PostgreSQL & Row Level Security (RLS)**, unifying university cognitive aptitude practice suites and corporate recruitment assessment rounds (Capgemini, MNC aptitude) into a full-fledged cloud gaming experience.
+A production-grade **React 19 + TypeScript + Tailwind CSS** platform backed by **Supabase PostgreSQL & Row Level Security (RLS)**, unifying 12 interactive cognitive and aptitude games into a full-fledged cloud gaming experience with live leaderboards, analytics, and achievements.
 
 ---
 
@@ -34,23 +34,21 @@ The platform is designed following the **Principle of Least Privilege**, **OWASP
 
 ## 🌟 Included Assessment Tracks & Games (12 Games Total)
 
-### Track 1: Cognitive Aptitude Practice Arena
-*(Modelled on university & corporate cognitive entrance assessments)*
+### Track 1: Cognitive Track
 1. **Target Sum**: Numerical agility — Select number tiles that add up exactly to the target number.
 2. **Signal Sequence**: Working memory — Watch pads light up with synthesized audio tones, then repeat the exact order.
-3. **Stack Sort (Tower of Hanoi)**: Planning & sequencing — Move disks between 3 pegs without placing a larger disk on a smaller one.
+3. **Stack Sort**: Planning & sequencing — Move disks between 3 pegs without placing a larger disk on a smaller one.
 4. **Function Machine**: Logical reasoning — Deduce the hidden mathematical formula from 3 example pairs, then solve for the new input.
-5. **Pixel Logic (Nonogram)**: Deductive reasoning — Fill grid cells based on row and column run-length clues.
+5. **Pixel Logic**: Deductive reasoning — Fill grid cells based on row and column run-length clues.
 6. **Matrix Complete**: Pattern recognition — Deduce the transformation from tile A to B, then complete the 2×2 analogy.
 
-### Track 2: Game-Based Assessment Arena
-*(Modelled on Capgemini & top MNC recruitment game rounds)*
-7. **Digit Challenge**: Numerical reasoning — Place digits from a bank into arithmetic equation slots to balance both sides.
-8. **Grid Challenge**: Working memory & multitasking — Memorize lit cells, solve an interstitial shape symmetry question, then recall the original cells.
-9. **Motion Challenge**: Spatial planning — Navigate the red ball through a rock-filled maze to the target hole using on-screen buttons or keyboard Arrow Keys.
-10. **Switch Challenge**: Decoding & logic — Understand how the switch transforms a sequence (reverse, shift, swap), then determine the output for a new sequence.
+### Track 2: Challenge Track
+7. **Digit Balance**: Numerical reasoning — Place digits from a bank into arithmetic equation slots to balance both sides.
+8. **Memory Grid**: Working memory & multitasking — Memorize lit cells, solve an interstitial mirror symmetry check, then recall the original cells.
+9. **Motion Maze**: Spatial planning — Navigate the red ball through a rock-filled maze to the target hole using on-screen buttons or keyboard Arrow Keys.
+10. **Switch Decode**: Decoding & logic — Understand how the switch transforms a sequence (reverse, shift, swap), then determine the output for a new sequence.
 11. **Geo-Sudo**: Deductive logic — Latin-square sudoku with geometric shapes where no shape may repeat in any row or column.
-12. **Inductive Challenge**: Pattern recognition — Spot the odd tile out that breaks the common attribute rule (shape, color, count, or fill).
+12. **Odd One Out**: Pattern recognition — Spot the odd tile out that breaks the common attribute rule (shape, color, count, or fill).
 
 ---
 

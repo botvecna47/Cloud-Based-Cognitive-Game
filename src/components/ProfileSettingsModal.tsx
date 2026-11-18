@@ -65,7 +65,7 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mount_adept_profile_backup_${user.username}.json`;
+    a.download = `gamefied_apti_profile_backup_${user.username}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -98,8 +98,8 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
             <Sliders className="w-6 h-6 text-cyan-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-white">Cadet Profile & Settings</h2>
-            <p className="text-xs text-slate-400">Manage identity, rank progression, and audio</p>
+            <h2 className="text-2xl font-black text-white">Player Profile & Settings</h2>
+            <p className="text-xs text-slate-400">Manage your avatar, username, and data backup</p>
           </div>
         </div>
 

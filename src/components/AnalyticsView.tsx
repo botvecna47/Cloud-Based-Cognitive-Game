@@ -65,8 +65,8 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 
   const readinessBand =
-    avgAbility >= 80 ? 'Placement Ready (Top 10%)' :
-    avgAbility >= 65 ? 'Competitive Candidate (Top 25%)' :
+    avgAbility >= 80 ? 'Elite Readiness (Top 10%)' :
+    avgAbility >= 65 ? 'Strong Performer (Top 25%)' :
     avgAbility >= 50 ? 'Intermediate Aptitude' : 'Foundational Aptitude';
 
   return (
@@ -76,10 +76,10 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2.5">
             <Brain className="w-8 h-8 text-cyan-400" />
-            <span>Cognitive Analytics & Readiness</span>
+            <span>Cognitive Analytics</span>
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-            Multi-dimensional evaluation across campus recruitment assessment pillars.
+            Multi-dimensional breakdown across all six cognitive aptitude pillars.
           </p>
         </div>
 

@@ -51,7 +51,7 @@ export const InstructionsModal: React.FC<InstructionsModalProps> = ({ game, onSt
         <div className="flex items-start gap-3 p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-xs sm:text-sm">
           <Lightbulb className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
           <div>
-            <strong className="text-indigo-300 block font-semibold mb-0.5">Placement Strategy Tip:</strong>
+            <strong className="text-indigo-300 block font-semibold mb-0.5">Strategy Tip:</strong>
             {game.tips}
           </div>
         </div>
@@ -66,6 +66,7 @@ export const InstructionsModal: React.FC<InstructionsModalProps> = ({ game, onSt
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {durationOptions.map(opt => (
             <button
+              type="button"
               key={opt.value}
               onClick={() => setSelectedDuration(opt.value)}
               className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
@@ -83,11 +84,12 @@ export const InstructionsModal: React.FC<InstructionsModalProps> = ({ game, onSt
       {/* Action Buttons */}
       <div className="flex items-center gap-4 pt-2">
         <button
+          type="button"
           onClick={() => onStart(selectedDuration)}
           className="flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Play className="w-5 h-5 fill-slate-950" />
-          <span>Start Assessment Round</span>
+          <span>Start Game</span>
         </button>
 
         <button

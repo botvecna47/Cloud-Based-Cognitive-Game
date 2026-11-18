@@ -136,7 +136,7 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
 
       <div className="text-slate-400 text-xs sm:text-sm text-center">
         {phase === 'watch'
-          ? 'Memorise the order in which the pads light up.'
+          ? 'Memorize the order in which the pads light up.'
           : 'Click the pads in the exact same sequence you just observed.'}
       </div>
     </div>

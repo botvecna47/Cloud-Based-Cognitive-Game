@@ -61,7 +61,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mount_adept_history_${user.username}_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `gamefied_apti_history_${user.username}_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -105,7 +105,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
             className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>Back to Arena</span>
           </button>
         </div>
       </div>
@@ -117,17 +117,19 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
           <select
             value={trackFilter}
             onChange={e => setTrackFilter(e.target.value)}
+            aria-label="Filter by track"
             className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400"
           >
             <option value="all">All Tracks</option>
-            <option value="cognitive">Track 1: Cognitive Aptitude</option>
-            <option value="game-based">Track 2: Capgemini Game Round</option>
+            <option value="cognitive">Cognitive Track</option>
+            <option value="game-based">Challenge Track</option>
           </select>
 
           {/* Game Filter */}
           <select
             value={gameFilter}
             onChange={e => setGameFilter(e.target.value)}
+            aria-label="Filter by game"
             className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-400"
           >
             <option value="all">All 12 Games</option>
@@ -140,7 +142,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
         </div>
 
         {/* Search */}
-        <div className="relative min-w-[200px]">
+        <div className="relative w-full sm:w-56">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"

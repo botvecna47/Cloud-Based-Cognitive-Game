@@ -149,9 +149,8 @@ export const ResultModal: React.FC<ResultModalProps> = ({
 
       {/* Explanatory Note */}
       <div className="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 leading-relaxed text-left">
-        <strong>Aptitude Evaluation:</strong> Campus placement rounds value consistent accuracy and
-        controlled speed over rushed guessing. Each level increases in cognitive complexity and
-        rewards clean, calculated execution.
+        <strong>Performance Insight:</strong> Consistent accuracy paired with controlled speed maximizes
+        both your Performance Index and XP yield. Each level increases in complexity and rewards clean execution.
       </div>
 
       {/* Action Buttons */}

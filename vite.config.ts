@@ -33,6 +33,17 @@ export default defineConfig({
     tailwindcss(),
     productionCspPlugin(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-ui': ['lucide-react', 'canvas-confetti'],
+        },
+      },
+    },
+  },
   server: {
     port: 3000,
     open: true,

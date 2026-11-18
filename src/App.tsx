@@ -437,8 +437,7 @@ export const App: React.FC = () => {
 
         {/* Footer info */}
         <footer className="text-center text-xs text-slate-500 mt-6 leading-relaxed">
-          MOUNT ADEPT Cognitive Practice Arena • Cloud Database powered by Supabase with Row Level Security.
-          All assessment algorithms and scoring models are built for campus placement rehearsal.
+          Gamefied Apti • Cloud-synced cognitive & aptitude game arena powered by Supabase with Row Level Security.
         </footer>
       </main>
     </div>

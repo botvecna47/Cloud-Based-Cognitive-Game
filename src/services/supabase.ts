@@ -21,7 +21,7 @@ if (supabaseUrl && supabaseAnonKey && isSupabaseConfigured) {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        storageKey: 'mount_adept_auth_token',
+        storageKey: 'gamefied_apti_auth_token',
       },
     });
   } catch (err) {

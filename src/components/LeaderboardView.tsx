@@ -36,7 +36,6 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
   );
 
   const topThree = filteredEntries.slice(0, 3);
-  const restEntries = filteredEntries.slice(3);
 
   const rankBadgeColors: Record<string, string> = {
     Grandmaster: 'text-purple-300 bg-purple-950/60 border-purple-500/40',
@@ -131,7 +130,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
           ))}
         </div>
 
-        <div className="relative min-w-[200px]">
+        <div className="relative w-full sm:w-56">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input
             type="text"
@@ -234,7 +233,7 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
             <thead>
               <tr className="border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[11px]">
                 <th className="py-2.5 px-3">Rank</th>
-                <th className="py-2.5 px-3">Cadet Player</th>
+                <th className="py-2.5 px-3">Player</th>
                 <th className="py-2.5 px-3">Tier</th>
                 <th className="py-2.5 px-3 text-right">
                   {selectedGame === 'all' ? 'Total Experience' : 'High Score'}

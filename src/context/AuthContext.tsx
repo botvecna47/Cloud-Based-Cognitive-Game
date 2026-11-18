@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     function createDefaultGuest() {
       const guestUser: UserProfile = {
         id: 'guest-' + Math.random().toString(36).substring(2, 9),
-        username: 'AptitudeCadet',
+        username: 'AptitudePlayer',
         avatarUrl: 'brain-blue',
         totalXp: 0,
         rankTier: 'Bronze',

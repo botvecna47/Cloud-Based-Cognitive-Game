@@ -24,7 +24,7 @@ export function calculateRank(xp: number): RankTier {
   return 'Bronze';
 }
 
-const LOCAL_STORAGE_KEY_PREFIX = 'mount_adept_';
+const LOCAL_STORAGE_KEY_PREFIX = 'gamefied_apti_';
 export const LOCAL_PROFILE_STORAGE_KEY = LOCAL_STORAGE_KEY_PREFIX + 'profile';
 
 export const ALLOWED_GAME_IDS: readonly GameId[] = [
@@ -88,13 +88,13 @@ export function loadLocalProfile(): UserProfile | null {
   try {
     const raw =
       localStorage.getItem(LOCAL_PROFILE_STORAGE_KEY) ||
-      localStorage.getItem('mount_adept_guest_profile');
+      localStorage.getItem('mount_adept_profile');
     if (!raw) return null;
     const parsed = JSON.parse(raw) as UserProfile;
     if (!parsed || typeof parsed.id !== 'string') return null;
     return {
       ...parsed,
-      username: sanitizeUsername(parsed.username || 'Cadet'),
+      username: sanitizeUsername(parsed.username || 'Player'),
       avatarUrl: sanitizeAvatar(parsed.avatarUrl),
       totalXp: Math.max(0, Number(parsed.totalXp) || 0),
       rankTier: calculateRank(Math.max(0, Number(parsed.totalXp) || 0)),
@@ -108,16 +108,12 @@ export function loadLocalProfile(): UserProfile | null {
 
 export function saveLocalProfile(profile: UserProfile): void {
   setLocalItem('profile', profile);
-  try {
-    localStorage.removeItem('mount_adept_guest_profile');
-  } catch {
-    // ignore
-  }
 }
 
 export function clearLocalProfile(): void {
   try {
     localStorage.removeItem(LOCAL_PROFILE_STORAGE_KEY);
+    localStorage.removeItem('mount_adept_profile');
     localStorage.removeItem('mount_adept_guest_profile');
   } catch {
     // ignore

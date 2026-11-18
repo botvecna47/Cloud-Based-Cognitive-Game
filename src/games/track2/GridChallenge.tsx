@@ -116,7 +116,7 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           <div className="inline-flex items-center gap-2 text-amber-300 bg-amber-950/40 px-5 py-2 rounded-full border border-amber-500/30 text-lg font-medium animate-pulse">
             <span>🧠</span>
             <span>
-              Memorise the <strong className="text-white font-bold">{k}</strong> highlighted cells!
+              Memorize the <strong className="text-white font-bold">{k}</strong> highlighted cells!
             </span>
           </div>
         )}

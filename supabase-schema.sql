@@ -1,5 +1,5 @@
 -- ==============================================================================
--- MOUNT ADEPT: GAME-BASED & COGNITIVE APTITUDE ARENA
+-- GAMEFIED APTI: COGNITIVE & APTITUDE GAME ARENA
 -- PRODUCTION HARDENED SUPABASE POSTGRESQL 17 SCHEMA (ZERO-TRUST RLS)
 -- ==============================================================================
 -- Security & Performance Controls Implemented:

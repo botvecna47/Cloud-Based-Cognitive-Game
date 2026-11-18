@@ -83,7 +83,7 @@ export const InductiveChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           All tiles except one follow a shared rule. Spot the odd one out:
         </p>
         <p className="text-xs text-slate-400 mt-1">
-          Look for the single tile that differs in shape, colour, quantity, or fill.
+          Look for the single tile that differs in shape, color, quantity, or fill.
         </p>
       </div>
 

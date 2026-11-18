@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, BarChart3, Layers, Compass, Trophy, History, Award, Database, User, LogIn, Sliders } from 'lucide-react';
+import {
+  Volume2,
+  VolumeX,
+  BarChart3,
+  Layers,
+  Compass,
+  LayoutGrid,
+  Trophy,
+  History,
+  Award,
+  LogIn,
+} from 'lucide-react';
 import { sound } from '../utils/sound';
 import { getAvatarIcon } from '../utils/avatars';
 import { useAuth } from '../context/AuthContext';
@@ -49,41 +60,57 @@ export const Header: React.FC<HeaderProps> = ({
     Bronze: 'text-orange-300 bg-orange-950/80 border-orange-400/50',
   };
 
+  const navItems: {
+    id: MainNavTab;
+    label: string;
+    Icon: React.ComponentType<{ className?: string }>;
+    accentInactive?: string;
+  }[] = [
+    { id: 'track1', label: 'Cognitive Track', Icon: Compass },
+    { id: 'track2', label: 'Challenge Track', Icon: Layers },
+    { id: 'all', label: 'All Games', Icon: LayoutGrid },
+    { id: 'leaderboards', label: 'Leaderboard', Icon: Trophy, accentInactive: 'text-amber-400' },
+    { id: 'history', label: 'History', Icon: History },
+    { id: 'analytics', label: 'Analytics', Icon: BarChart3 },
+    { id: 'achievements', label: 'Badges', Icon: Award, accentInactive: 'text-amber-400' },
+  ];
+
   return (
     <header className="w-full flex flex-col gap-4 pb-4 border-b border-slate-800/80 mb-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         {/* Brand Logo & Title */}
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 border border-cyan-400/40 p-1 flex items-center justify-center shadow-lg shadow-cyan-500/10 shrink-0">
-            <svg className="w-full h-full" viewBox="0 0 100 100">
-              <polygon points="8,86 40,30 56,58 66,42 92,86" fill="#20B8CF" />
-              <polygon points="40,30 56,58 48,58 34,40" fill="#128FB0" />
-              <circle cx="66" cy="30" r="7" fill="#E23B57" />
-              <line x1="66" y1="30" x2="66" y2="10" stroke="#E23B57" strokeWidth="4" />
-              <polygon points="66,4 60,14 72,14" fill="#E23B57" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-lg shadow-cyan-500/10 shrink-0">
+            <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+              <rect x="6" y="6" width="22" height="22" rx="6" fill="#20B8CF" />
+              <rect x="36" y="6" width="22" height="22" rx="6" fill="#38BDF8" fillOpacity="0.35" stroke="#20B8CF" strokeWidth="3" />
+              <rect x="6" y="36" width="22" height="22" rx="6" fill="#6366F1" fillOpacity="0.45" stroke="#818CF8" strokeWidth="3" />
+              <circle cx="47" cy="47" r="11" fill="#10B981" />
+              <path d="M42.5 47L45.5 50L52 43.5" stroke="#020617" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-white tracking-wider text-base sm:text-lg">
-                MOUNT ADEPT
+              <span className="font-black text-white tracking-wide text-base sm:text-lg">
+                GAMEFIED APTI
               </span>
-              <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-extrabold border border-cyan-500/30">
-                PRO ARENA
+              <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-extrabold border border-cyan-500/30">
+                ARENA
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
-              Cognitive Aptitude & Game-Based Assessment Platform
+              Cognitive & Aptitude Game Arena
             </p>
           </div>
         </div>
 
-        {/* User Pill, Supabase Status & Audio Controls */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+        {/* User Pill, Cloud Status & Audio Controls */}
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
           {/* Supabase Status Pill */}
           <button
+            type="button"
             onClick={onOpenSupabaseSetup}
-            title="Click to view Supabase Cloud Database Status & Configuration"
+            title="View Supabase Cloud Database Status & Configuration"
             className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
               isSupabaseConfigured && isSupabaseOnline
                 ? 'bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border-emerald-500/40 shadow-sm'
@@ -96,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             />
             <span className="hidden sm:inline">
-              {isSupabaseConfigured && isSupabaseOnline ? 'Supabase Cloud' : 'Local DB Sandbox'}
+              {isSupabaseConfigured && isSupabaseOnline ? 'Cloud Sync' : 'Local Sandbox'}
             </span>
             <span className="sm:hidden">
               {isSupabaseConfigured && isSupabaseOnline ? 'Cloud' : 'Local'}
@@ -105,10 +132,11 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Audio Toggle */}
           <button
+            type="button"
             onClick={toggleAudio}
             aria-label={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
             title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
-            className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
+            className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition-all cursor-pointer flex items-center justify-center"
           >
             {soundEnabled ? (
               <Volume2 className="w-4 h-4 text-cyan-400" />
@@ -120,6 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* User Account / Profile Button */}
           {user ? (
             <button
+              type="button"
               onClick={onOpenSettings}
               className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer shadow"
             >
@@ -149,6 +178,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           ) : (
             <button
+              type="button"
               onClick={onOpenAuth}
               className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
             >
@@ -161,89 +191,26 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Tabs */}
       {!isInGame && (
-        <nav className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            onClick={() => onSelectTab('track1')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'track1'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <Compass className="w-4 h-4" />
-            <span>Track 1: Cognitive Aptitude</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('track2')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'track2'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Track 2: Capgemini Round</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('all')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'all'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <span>All 12 Games</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('leaderboards')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'leaderboards'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <Trophy className="w-4 h-4 text-amber-400" />
-            <span>Leaderboards</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('history')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'history'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <History className="w-4 h-4" />
-            <span>Game History</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('analytics')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'analytics'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Analytics</span>
-          </button>
-
-          <button
-            onClick={() => onSelectTab('achievements')}
-            className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer ${
-              currentTab === 'achievements'
-                ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-slate-950 shadow-md shadow-cyan-500/20 scale-102 font-extrabold'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border border-slate-700/60'
-            }`}
-          >
-            <Award className="w-4 h-4 text-amber-400" />
-            <span>Badges</span>
-          </button>
+        <nav aria-label="Main navigation" className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {navItems.map(({ id, label, Icon, accentInactive }) => {
+            const isActive = currentTab === id;
+            return (
+              <button
+                type="button"
+                key={id}
+                onClick={() => onSelectTab(id)}
+                aria-current={isActive ? 'page' : undefined}
+                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer border ${
+                  isActive
+                    ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-950 border-cyan-300 shadow-md shadow-cyan-500/20 font-extrabold'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border-slate-700/60'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : accentInactive || ''}`} />
+                <span>{label}</span>
+              </button>
+            );
+          })}
         </nav>
       )}
     </header>
