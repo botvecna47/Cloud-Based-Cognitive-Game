@@ -147,11 +147,11 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
         </div>
       </div>
 
-      {/* Maze Grid */}
-      <div className="p-3 sm:p-5 bg-paper rounded-xl border border-hairline">
+      {/* Maze Grid (fluid responsive sizing so 4x4..7x7 fits cleanly on 320px phones) */}
+      <div className="p-2.5 sm:p-5 bg-paper rounded-xl border border-hairline w-full max-w-[360px]">
         <div
-          className="grid gap-1.5 sm:gap-2 select-none"
-          style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(42px, 52px))` }}
+          className="grid gap-1 sm:gap-2 select-none w-full"
+          style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: total }).map((_, i) => {
             const isBall = ballPos === i;
@@ -163,18 +163,18 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
             if (isRock) {
               cellStyle = 'bg-ink border-ink cursor-not-allowed';
-              content = <div className="w-3.5 h-3.5 rounded-sm bg-ink-secondary" />;
+              content = <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-sm bg-ink-secondary" />;
             } else if (isBall) {
               cellStyle = 'bg-vermilion-wash border-vermilion';
               content = (
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-vermilion border-2 border-ink flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-surface" />
+                <div className="w-[70%] h-[70%] rounded-full bg-vermilion border-2 border-ink flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-surface" />
                 </div>
               );
             } else if (isHole) {
               cellStyle = 'bg-recessed border-ink border-dashed';
               content = (
-                <div className="w-8 h-8 rounded-full border-2 border-dashed border-ink flex items-center justify-center text-vermilion font-mono text-base font-bold">
+                <div className="w-[74%] h-[74%] rounded-full border-2 border-dashed border-ink flex items-center justify-center text-vermilion font-mono text-xs sm:text-base font-bold leading-none">
                   ◎
                 </div>
               );
@@ -183,7 +183,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             return (
               <div
                 key={i}
-                className={`w-11 h-11 sm:w-13 sm:h-13 rounded-lg border-2 flex items-center justify-center transition-all ${cellStyle}`}
+                className={`w-full aspect-square rounded-lg border-2 flex items-center justify-center transition-[background-color,border-color] duration-150 ${cellStyle}`}
               >
                 {content}
               </div>
@@ -198,7 +198,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           type="button"
           onClick={() => move(-1, 0)}
           aria-label="Move up"
-          className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer flex items-center justify-center"
         >
           ↑
         </button>
@@ -207,7 +207,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(0, -1)}
             aria-label="Move left"
-            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer flex items-center justify-center"
           >
             ←
           </button>
@@ -215,7 +215,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(1, 0)}
             aria-label="Move down"
-            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer flex items-center justify-center"
           >
             ↓
           </button>
@@ -223,7 +223,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(0, 1)}
             aria-label="Move right"
-            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer flex items-center justify-center"
           >
             →
           </button>

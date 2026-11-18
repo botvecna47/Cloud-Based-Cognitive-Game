@@ -128,17 +128,18 @@ export const TargetSum: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Number Chips */}
-      <div className="flex flex-wrap justify-center gap-3 p-5 bg-paper rounded-xl border border-hairline w-full">
+      <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3 p-3.5 sm:p-5 bg-paper rounded-xl border border-hairline w-full">
         {puzzle.tiles.map(tile => {
           const isSelected = selectedIds.has(tile.id);
           return (
             <button
+              type="button"
               key={tile.id}
               onClick={() => toggleTile(tile.id)}
               aria-pressed={isSelected}
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold transition-all duration-150 active:scale-95 flex items-center justify-center cursor-pointer select-none border ${
+              className={`w-13 h-13 sm:w-16 sm:h-16 rounded-xl font-mono text-xl sm:text-3xl font-bold transition-[transform,background-color,border-color,color] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center cursor-pointer select-none border ${
                 isSelected
-                  ? 'bg-ink text-surface border-ink ring-2 ring-vermilion/60 -translate-y-0.5 shadow-sm'
+                  ? 'bg-ink text-surface border-ink ring-2 ring-vermilion/60 motion-safe:-translate-y-0.5 shadow-sm'
                   : 'bg-surface hover:bg-recessed text-ink border-hairline hover:border-ink'
               }`}
             >
@@ -149,16 +150,18 @@ export const TargetSum: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Control Buttons */}
-      <div className="flex items-center gap-3 mt-1">
+      <div className="flex items-center justify-center gap-3 w-full sm:w-auto mt-1">
         <button
+          type="button"
           onClick={handleCheck}
-          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 sm:flex-none px-6 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Check Sum
         </button>
         <button
+          type="button"
           onClick={handleClear}
-          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Clear
         </button>

@@ -102,15 +102,15 @@ export const FunctionMachine: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Examples Card */}
-      <div className="flex flex-col gap-3 w-full p-4 sm:p-5 bg-paper rounded-xl border border-hairline">
+      <div className="flex flex-col gap-3 w-full p-3.5 sm:p-5 bg-paper rounded-xl border border-hairline">
         <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold text-center">
           Observed Samples
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {puzzle.examples.map((ex, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-center gap-2 bg-surface py-3 px-2 rounded-lg border border-hairline font-mono text-lg sm:text-xl font-bold"
+              className="flex items-center justify-center gap-1 sm:gap-2 bg-surface py-2.5 sm:py-3 px-1.5 sm:px-2 rounded-lg border border-hairline font-mono text-sm sm:text-xl font-bold tabular-nums"
             >
               <span className="text-ink">{ex.in}</span>
               <span className="text-vermilion font-sans">→</span>
@@ -121,7 +121,7 @@ export const FunctionMachine: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Target Question */}
-      <div className="flex items-center justify-center gap-3 bg-ink text-surface px-6 py-3 rounded-xl">
+      <div className="flex items-center justify-center gap-3 bg-ink text-surface px-5 sm:px-6 py-3 rounded-xl">
         <span className="font-mono text-xs uppercase tracking-wider text-surface/70 font-bold">
           Solve
         </span>
@@ -133,12 +133,13 @@ export const FunctionMachine: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* 4 Choices */}
-      <div className="grid grid-cols-2 gap-3.5 w-full">
+      <div className="grid grid-cols-2 gap-3 sm:gap-3.5 w-full">
         {puzzle.options.map((opt, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={() => handleSelect(opt)}
-            className="py-4 px-6 rounded-xl font-mono text-2xl sm:text-3xl font-bold bg-surface hover:bg-recessed text-ink border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center cursor-pointer tabular-nums"
+            className="py-4 px-4 sm:px-6 rounded-xl font-mono text-2xl sm:text-3xl font-bold bg-surface hover:bg-recessed text-ink border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center cursor-pointer tabular-nums"
           >
             {opt}
           </button>

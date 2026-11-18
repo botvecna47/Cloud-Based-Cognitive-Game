@@ -137,11 +137,11 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
         </div>
       )}
 
-      {/* Grid */}
-      <div className="p-3 sm:p-5 bg-paper rounded-xl border border-hairline">
+      {/* Grid (fluid responsive sizing so 4x4..6x6 fits cleanly on 320px phones) */}
+      <div className="p-3 sm:p-5 bg-paper rounded-xl border border-hairline w-full max-w-[340px]">
         <div
-          className="grid gap-1.5 sm:gap-2 select-none"
-          style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(44px, 54px))` }}
+          className="grid gap-1.5 sm:gap-2 select-none w-full"
+          style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(0, 1fr))` }}
         >
           {currentGrid.map((row, r) =>
             row.map((val, c) => {
@@ -150,22 +150,24 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               return (
                 <button
+                  type="button"
                   key={`${r}-${c}`}
+                  disabled={isGiven}
                   onClick={() => handleCellClick(r, c)}
                   aria-label={`Row ${r + 1} column ${c + 1}${isGiven ? ' locked clue' : ''}`}
-                  className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 flex items-center justify-center transition-all ${
+                  className={`w-full aspect-square rounded-lg sm:rounded-xl border-2 flex items-center justify-center transition-[background-color,border-color,transform] duration-150 ease-out ${
                     isGiven
                       ? 'bg-recessed border-hairline cursor-default'
                       : val >= 0
-                      ? 'bg-surface border-ink hover:border-vermilion cursor-pointer'
-                      : 'bg-surface border-dashed border-hairline hover:border-ink cursor-pointer'
+                      ? 'bg-surface border-ink hover:border-vermilion motion-safe:enabled:active:scale-[0.96] cursor-pointer'
+                      : 'bg-surface border-dashed border-hairline hover:border-ink motion-safe:enabled:active:scale-[0.96] cursor-pointer'
                   }`}
                 >
                   {shapeName && (
                     <Shape
                       name={shapeName}
                       color={isGiven ? 'stone' : 'vermilion'}
-                      size={26}
+                      size={24}
                       filled={true}
                     />
                   )}
@@ -177,15 +179,16 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Shape Palette */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 w-full">
         <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold">
           Select Shape to Place
         </span>
-        <div className="flex items-center gap-2 p-2 bg-paper rounded-xl border border-hairline">
+        <div className="flex items-center justify-center flex-wrap gap-2 p-2 bg-paper rounded-2xl border border-hairline">
           {symbols.map((sym, idx) => {
             const isSelected = selectedShapeIndex === idx;
             return (
               <button
+                type="button"
                 key={sym}
                 onClick={() => {
                   sound.playClick();
@@ -193,13 +196,13 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
                 }}
                 aria-label={`Select ${sym}`}
                 aria-pressed={isSelected}
-                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all cursor-pointer border ${
+                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer border ${
                   isSelected
-                    ? 'bg-ink border-ink scale-105'
+                    ? 'bg-ink border-ink motion-safe:scale-105'
                     : 'bg-surface hover:bg-recessed border-hairline'
                 }`}
               >
-                <Shape name={sym} color={isSelected ? 'white' : 'ink'} size={26} />
+                <Shape name={sym} color={isSelected ? 'white' : 'ink'} size={24} />
               </button>
             );
           })}
@@ -207,19 +210,21 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
         <button
+          type="button"
           onClick={handleCheck}
-          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 sm:flex-none px-6 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Check Grid
         </button>
         <button
+          type="button"
           onClick={() => {
             sound.playWrong();
             api.wrong();
           }}
-          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline transition-[background-color,color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Skip
         </button>

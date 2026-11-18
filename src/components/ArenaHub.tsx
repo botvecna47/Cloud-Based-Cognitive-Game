@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GameMetadata, TrackId } from '../types';
 import { COGNITIVE_GAMES, GAME_BASED_GAMES, ALL_GAMES } from '../data/games';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { dbService } from '../services/dbService';
 
 interface ArenaHubProps {
   currentTab: 'track1' | 'track2' | 'all';
@@ -14,6 +16,36 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
   onSelectGame,
   onStartFullAssessment,
 }) => {
+  const { user } = useAuth();
+  const [bestScores, setBestScores] = useState<Record<string, { score: number; plays: number }>>({});
+
+  useEffect(() => {
+    let active = true;
+    async function loadPersonalBests() {
+      if (!user) {
+        if (active) setBestScores({});
+        return;
+      }
+      const history = await dbService.getUserHistory(user.id, 'all', 'all', 100);
+      if (!active) return;
+      const map: Record<string, { score: number; plays: number }> = {};
+      for (const item of history) {
+        const existing = map[item.gameId];
+        if (!existing) {
+          map[item.gameId] = { score: item.score, plays: 1 };
+        } else {
+          existing.plays += 1;
+          if (item.score > existing.score) existing.score = item.score;
+        }
+      }
+      setBestScores(map);
+    }
+    loadPersonalBests();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   let displayGames: GameMetadata[] = [];
   let kicker = '';
   let headline = '';
@@ -60,10 +92,10 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-10 animate-fade-in">
+    <div className="flex flex-col gap-8 sm:gap-10 animate-fade-in">
       {/* Asymmetric Editorial Split Hero */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-7 flex flex-col gap-4 pt-1">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        <div className="lg:col-span-7 flex flex-col gap-3.5 sm:gap-4 pt-1">
           <div className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-vermilion">
             {kicker}
           </div>
@@ -76,7 +108,7 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
         </div>
 
         {/* High-Contrast Charcoal Ink Featured Sprint Card */}
-        <div className="lg:col-span-5 p-7 sm:p-8 rounded-2xl bg-ink text-surface flex flex-col justify-between gap-5">
+        <div className="lg:col-span-5 p-6 sm:p-8 rounded-2xl bg-ink text-surface flex flex-col justify-between gap-5">
           <div className="flex flex-col gap-2.5">
             <div className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-vermilion">
               {sprintKicker}
@@ -93,7 +125,7 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
             <button
               type="button"
               onClick={() => onStartFullAssessment(sprintTarget)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-vermilion hover:bg-vermilion-hover text-surface font-semibold text-sm transition-colors active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-vermilion hover:bg-vermilion-hover text-surface font-semibold text-sm transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
             >
               <span>{sprintCta}</span>
               <ArrowRight className="w-4 h-4" />
@@ -113,39 +145,48 @@ export const ArenaHub: React.FC<ArenaHubProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {displayGames.map((game, idx) => (
-            <button
-              type="button"
-              key={game.id}
-              onClick={() => onSelectGame(game)}
-              className="text-left p-6 rounded-2xl bg-surface hover:bg-surface border border-hairline hover:border-ink transition-all duration-150 hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between min-h-[192px] group focus:outline-none focus-visible:ring-2 focus-visible:ring-vermilion"
-            >
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-vermilion truncate">
-                    {String(idx + 1).padStart(2, '0')} &nbsp;/&nbsp; {game.ability}
-                  </span>
-                  <span className="font-mono text-[11px] text-ink-muted uppercase shrink-0 tabular-nums">
-                    6 MIN
-                  </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {displayGames.map((game, idx) => {
+            const record = bestScores[game.id];
+            return (
+              <button
+                type="button"
+                key={game.id}
+                onClick={() => onSelectGame(game)}
+                className="text-left p-5 sm:p-6 rounded-2xl bg-surface border border-hairline hover:border-ink transition-[transform,border-color] duration-150 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:enabled:active:scale-[0.96] cursor-pointer flex flex-col justify-between min-h-[180px] sm:min-h-[192px] group"
+              >
+                <div className="flex flex-col gap-2.5 sm:gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-vermilion truncate">
+                      {String(idx + 1).padStart(2, '0')} &nbsp;/&nbsp; {game.ability}
+                    </span>
+                    {record ? (
+                      <span className="font-mono text-[10px] font-bold text-ink bg-recessed px-2 py-0.5 rounded uppercase shrink-0 tabular-nums">
+                        Best {record.score.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="font-mono text-[11px] text-ink-muted uppercase shrink-0 tabular-nums">
+                        6 MIN
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="font-display text-xl font-semibold text-ink tracking-tight group-hover:text-vermilion transition-colors duration-150">
+                    {game.name}
+                  </h4>
+
+                  <p className="text-[13px] text-ink-secondary leading-relaxed line-clamp-2">
+                    {game.short}
+                  </p>
                 </div>
 
-                <h4 className="font-display text-xl font-semibold text-ink tracking-tight group-hover:text-vermilion transition-colors">
-                  {game.name}
-                </h4>
-
-                <p className="text-[13px] text-ink-secondary leading-relaxed line-clamp-2">
-                  {game.short}
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between pt-4 mt-4 border-t border-hairline/70 text-[13px] font-semibold text-ink group-hover:text-vermilion transition-colors w-full">
-                <span>Launch Module</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </div>
-            </button>
-          ))}
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-hairline/70 text-[13px] font-semibold text-ink group-hover:text-vermilion transition-colors duration-150 w-full">
+                  <span>{record ? `Play Again (${record.plays}×)` : 'Launch Module'}</span>
+                  <ArrowRight className="w-4 h-4 motion-safe:transition-transform duration-150 ease-out group-hover:translate-x-1" />
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
     </div>

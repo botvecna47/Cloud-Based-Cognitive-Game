@@ -101,13 +101,13 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Progress Dots */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap justify-center">
         {sequence.map((_, i) => (
           <div
             key={i}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-150 ${
+            className={`w-2.5 h-2.5 rounded-full transition-[transform,background-color] duration-150 ${
               phase === 'repeat' && i < userStep
-                ? 'bg-vermilion scale-110'
+                ? 'bg-vermilion motion-safe:scale-110'
                 : 'bg-hairline'
             }`}
           />
@@ -115,20 +115,21 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* 6 Signal Pads */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-3.5 p-5 bg-paper rounded-xl border border-hairline">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 sm:gap-3.5 p-3.5 sm:p-5 bg-paper rounded-xl border border-hairline w-full sm:w-auto">
         {Array.from({ length: numPads }).map((_, index) => {
           const isFlashing = activePad === index;
           return (
             <button
+              type="button"
               key={index}
               disabled={phase === 'watch'}
               onClick={() => handlePadClick(index)}
-              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 transition-all duration-150 flex items-center justify-center font-mono font-bold text-xl select-none ${
+              className={`aspect-square sm:w-20 sm:h-20 rounded-xl border-2 transition-[transform,background-color,border-color,color] duration-150 ease-out flex items-center justify-center font-mono font-bold text-xl select-none ${
                 isFlashing
-                  ? 'bg-vermilion border-ink text-surface scale-105 ring-2 ring-ink/30'
+                  ? 'bg-vermilion border-ink text-surface motion-safe:scale-105 ring-2 ring-ink/30'
                   : phase === 'watch'
                   ? 'bg-recessed border-hairline text-ink-muted cursor-not-allowed'
-                  : 'bg-surface hover:bg-recessed border-hairline hover:border-ink text-ink active:scale-95 cursor-pointer'
+                  : 'bg-surface hover:bg-recessed border-hairline hover:border-ink text-ink motion-safe:enabled:active:scale-[0.96] cursor-pointer'
               }`}
             >
               {index + 1}

@@ -61,7 +61,10 @@ export const App: React.FC = () => {
 
   const [level, setLevel] = useState<number>(1);
   const [puzzleNonce, setPuzzleNonce] = useState<number>(0);
+  const [sessionNonce, setSessionNonce] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
+  const [streak, setStreak] = useState<number>(0);
+  const [bestStreak, setBestStreak] = useState<number>(0);
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [lastResult, setLastResult] = useState<GameResult | null>(null);
@@ -106,7 +109,9 @@ export const App: React.FC = () => {
   const handlePauseChange = useCallback((nextPaused: boolean) => {
     setIsPaused(nextPaused);
     if (nextPaused) {
-      pauseStartedAtRef.current = Date.now();
+      if (pauseStartedAtRef.current === null) {
+        pauseStartedAtRef.current = Date.now();
+      }
     } else if (pauseStartedAtRef.current !== null) {
       const pausedDelta = Date.now() - pauseStartedAtRef.current;
       levelStartTimeRef.current += pausedDelta;
@@ -128,7 +133,10 @@ export const App: React.FC = () => {
     setCurrentGameMode(mode);
     setLevel(1);
     setPuzzleNonce(n => n + 1);
+    setSessionNonce(n => n + 1);
     setScore(0);
+    setStreak(0);
+    setBestStreak(0);
     setCorrectCount(0);
     setAttemptCount(0);
     setIsPaused(false);
@@ -147,6 +155,23 @@ export const App: React.FC = () => {
 
     setScreen('playing');
   };
+
+  // Restart current active round (preserves queue if inside a sprint)
+  const handleRestartRound = useCallback(() => {
+    setLevel(1);
+    setPuzzleNonce(n => n + 1);
+    setSessionNonce(n => n + 1);
+    setScore(0);
+    setStreak(0);
+    setBestStreak(0);
+    setCorrectCount(0);
+    setAttemptCount(0);
+    setIsPaused(false);
+    pauseStartedAtRef.current = null;
+    isSubmittingResultRef.current = false;
+    levelRecordsRef.current = [];
+    levelStartTimeRef.current = Date.now();
+  }, []);
 
   // Start Full Assessment simulation
   const handleStartFullAssessment = (track: TrackId | 'marathon') => {
@@ -192,6 +217,9 @@ export const App: React.FC = () => {
         moves: meta?.moves,
       });
 
+      const nextStreak = streak + 1;
+      setStreak(nextStreak);
+      setBestStreak(prev => Math.max(prev, nextStreak));
       setScore(s => s + reward);
       setCorrectCount(c => c + 1);
       setAttemptCount(a => a + 1);
@@ -199,9 +227,9 @@ export const App: React.FC = () => {
       setPuzzleNonce(n => n + 1);
       levelStartTimeRef.current = Date.now();
 
-      showToast(`+${reward} points!`);
+      showToast(nextStreak >= 3 ? `+${reward} pts · ${nextStreak}× Streak` : `+${reward} pts`);
     },
-    [activeGame, level, showToast]
+    [activeGame, level, streak, showToast]
   );
 
   const handleWrong = useCallback(() => {
@@ -214,13 +242,14 @@ export const App: React.FC = () => {
       isCorrect: false,
     });
 
+    setStreak(0);
     setAttemptCount(a => a + 1);
     setPuzzleNonce(n => n + 1);
     levelStartTimeRef.current = Date.now();
     showToast('Not quite — next puzzle', true);
   }, [level, showToast]);
 
-  // Time expired or user completes round (idempotency-guarded)
+  // Time expired or user finishes round early (idempotency-guarded)
   const handleTimeUp = useCallback(async () => {
     if (isSubmittingResultRef.current) return;
     isSubmittingResultRef.current = true;
@@ -353,7 +382,7 @@ export const App: React.FC = () => {
       />
       <SupabaseSetupModal isOpen={isSupabaseSetupOpen} onClose={() => setIsSupabaseSetupOpen(false)} />
 
-      <main className="max-w-6xl w-full mx-auto px-5 sm:px-8 lg:px-10 py-6 sm:py-9 flex-1 flex flex-col">
+      <main className="max-w-6xl w-full mx-auto px-3.5 sm:px-8 lg:px-10 py-4 sm:py-9 flex-1 flex flex-col">
         {/* Swiss Editorial Masthead */}
         <Header
           currentTab={currentTab}
@@ -390,9 +419,15 @@ export const App: React.FC = () => {
               game={activeGame}
               level={level}
               score={score}
+              streak={streak}
+              correctCount={correctCount}
+              attemptCount={attemptCount}
               durationSeconds={durationSeconds}
+              sessionNonce={sessionNonce}
               isPaused={isPaused}
               onPauseChange={handlePauseChange}
+              onRestart={handleRestartRound}
+              onFinishEarly={handleTimeUp}
               onTimeUp={handleTimeUp}
               onQuit={handleGoHome}
               queueProgress={queueProgress}
@@ -414,6 +449,7 @@ export const App: React.FC = () => {
             <ResultModal
               game={activeGame}
               result={lastResult}
+              bestStreak={bestStreak}
               hasNextInQueue={assessmentQueue.length > 0}
               nextGameName={assessmentQueue[0]?.name}
               onNextGame={handleNextInQueue}
@@ -436,7 +472,7 @@ export const App: React.FC = () => {
         </div>
 
         {/* Minimal Editorial Colophon */}
-        <footer className="mt-14 pt-6 border-t border-hairline flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ink-muted">
+        <footer className="mt-10 sm:mt-14 pt-5 border-t border-hairline flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-ink-muted text-center sm:text-left">
           <span className="font-mono uppercase tracking-wider">Gamefied Apti — Editorial Edition</span>
           <span>Cloud-synced with Supabase PostgreSQL &amp; Zero-Trust Row Level Security</span>
         </footer>

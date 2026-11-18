@@ -203,9 +203,9 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right">
-                      <div className="text-lg font-mono font-bold text-ink tabular-nums">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-hairline/60">
+                    <div className="text-left sm:text-right">
+                      <div className="text-base sm:text-lg font-mono font-bold text-ink tabular-nums">
                         {item.score.toLocaleString()}{' '}
                         <span className="text-xs text-ink-muted font-normal">pts</span>
                       </div>
@@ -215,8 +215,8 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                     </div>
 
                     {item.performanceIndex != null && (
-                      <div className="hidden sm:block text-right">
-                        <div className="text-base font-mono font-bold text-ink tabular-nums">
+                      <div className="text-right">
+                        <div className="text-sm sm:text-base font-mono font-bold text-ink tabular-nums">
                           {item.performanceIndex}/100
                         </div>
                         <div className="font-mono text-[10px] uppercase tracking-wider text-ink-muted">
@@ -225,7 +225,7 @@ export const HistoryView: React.FC<{ onBack: () => void; onPlayGame: (gameId: Ga
                       </div>
                     )}
 
-                    <div className="text-ink-muted">
+                    <div className="text-ink-muted shrink-0">
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </div>

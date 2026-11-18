@@ -47,12 +47,13 @@ export const SupabaseSetupModal: React.FC<SupabaseSetupModalProps> = ({ isOpen, 
       aria-label="Supabase Cloud Database Setup"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
+      <div className="relative w-full max-w-2xl max-h-[90dvh] overflow-y-auto overscroll-contain p-5 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close setup modal"
-          className="absolute top-5 right-5 p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed transition-colors cursor-pointer"
+          className="absolute top-4 right-4 w-10 h-10 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed flex items-center justify-center transition-colors duration-150 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>

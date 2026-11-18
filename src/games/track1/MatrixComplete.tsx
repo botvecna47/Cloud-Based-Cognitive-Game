@@ -125,24 +125,24 @@ export const MatrixComplete: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* 2x2 Matrix */}
-      <div className="grid grid-cols-2 gap-3.5 p-4 bg-paper rounded-xl border border-hairline">
+      <div className="grid grid-cols-2 gap-3 p-3.5 sm:p-4 bg-paper rounded-xl border border-hairline">
         {/* Cell A */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
-          {renderTileContent(puzzle.A, 30)}
+        <div className="w-26 h-26 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
+          {renderTileContent(puzzle.A, 28)}
         </div>
 
         {/* Cell B */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
-          {renderTileContent(puzzle.B, 30)}
+        <div className="w-26 h-26 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
+          {renderTileContent(puzzle.B, 28)}
         </div>
 
         {/* Cell C */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
-          {renderTileContent(puzzle.C, 30)}
+        <div className="w-26 h-26 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
+          {renderTileContent(puzzle.C, 28)}
         </div>
 
         {/* Question Mark Target Cell */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-vermilion-wash rounded-xl border-2 border-dashed border-vermilion flex items-center justify-center font-mono font-bold text-4xl text-vermilion">
+        <div className="w-26 h-26 sm:w-32 sm:h-32 bg-vermilion-wash rounded-xl border-2 border-dashed border-vermilion flex items-center justify-center font-mono font-bold text-4xl text-vermilion">
           ?
         </div>
       </div>
@@ -152,14 +152,15 @@ export const MatrixComplete: React.FC<{ api: GameAPI }> = ({ api }) => {
       </p>
 
       {/* 4 Candidate Options */}
-      <div className="grid grid-cols-2 gap-3.5 w-full">
+      <div className="grid grid-cols-2 gap-3 sm:gap-3.5 w-full">
         {puzzle.options.map((opt, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={() => handleSelect(opt)}
-            className="h-20 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center p-2 cursor-pointer"
+            className="h-20 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center p-2 cursor-pointer"
           >
-            {renderTileContent(opt, 28)}
+            {renderTileContent(opt, 26)}
           </button>
         ))}
       </div>

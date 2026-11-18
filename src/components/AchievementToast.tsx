@@ -25,7 +25,7 @@ export const AchievementToast: React.FC<AchievementToastProps> = ({ achievement,
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-6 right-6 z-50 max-w-sm w-[calc(100%-3rem)] p-4 rounded-2xl bg-ink text-surface border border-ink shadow-xl animate-float-subtle flex items-start gap-3.5"
+      className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 sm:max-w-sm p-4 rounded-[20px] bg-ink text-surface border border-ink shadow-xl animate-fade-in flex items-start gap-3.5"
     >
       <div className="w-10 h-10 rounded-xl bg-vermilion text-surface flex items-center justify-center shrink-0">
         <Award className="w-5 h-5" />
@@ -40,9 +40,9 @@ export const AchievementToast: React.FC<AchievementToastProps> = ({ achievement,
             type="button"
             onClick={onDismiss}
             aria-label="Dismiss achievement banner"
-            className="text-surface/60 hover:text-surface p-0.5 cursor-pointer"
+            className="text-surface/60 hover:text-surface p-1 -mr-1 -mt-1 rounded-md transition-colors duration-150 cursor-pointer"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 

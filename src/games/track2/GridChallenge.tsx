@@ -142,19 +142,19 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
       {/* Main Interactive Stage */}
       {phase === 'memorize' && (
-        <div className="p-4 sm:p-6 bg-paper rounded-xl border border-hairline">
+        <div className="p-3.5 sm:p-6 bg-paper rounded-xl border border-hairline w-full max-w-[340px]">
           <div
-            className="grid gap-2 select-none"
-            style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 54px))` }}
+            className="grid gap-1.5 sm:gap-2 select-none w-full"
+            style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
           >
             {Array.from({ length: total }).map((_, i) => {
               const isLit = litCells.has(i);
               return (
                 <div
                   key={i}
-                  className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 transition-all flex items-center justify-center ${
+                  className={`w-full aspect-square rounded-lg sm:rounded-xl border-2 transition-[background-color,border-color,transform] duration-150 flex items-center justify-center ${
                     isLit
-                      ? 'bg-vermilion border-ink scale-105'
+                      ? 'bg-vermilion border-ink motion-safe:scale-105'
                       : 'bg-surface border-hairline'
                   }`}
                 />
@@ -165,8 +165,8 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       )}
 
       {phase === 'symmetry' && (
-        <div className="flex flex-col items-center gap-6 p-6 bg-paper rounded-xl border border-hairline w-full">
-          <div className="flex items-center justify-center gap-6 sm:gap-10">
+        <div className="flex flex-col items-center gap-5 sm:gap-6 p-5 sm:p-6 bg-paper rounded-xl border border-hairline w-full">
+          <div className="flex items-center justify-center gap-5 sm:gap-10">
             {/* Left Shape */}
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface rounded-xl border border-hairline flex items-center justify-center">
               <svg width="48" height="48" viewBox="0 0 44 44" aria-hidden="true">
@@ -187,18 +187,18 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => handleSymmetryAnswer(true)}
-              className="px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-ink hover:bg-ink/90 text-surface active:scale-[0.98] transition-all cursor-pointer"
+              className="flex-1 sm:flex-none px-5 sm:px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-ink hover:bg-ink/90 text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
             >
               Mirror Image
             </button>
             <button
               type="button"
               onClick={() => handleSymmetryAnswer(false)}
-              className="px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-surface hover:bg-recessed text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
+              className="flex-1 sm:flex-none px-5 sm:px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-surface hover:bg-recessed text-ink border border-hairline transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
             >
               Not Mirrored
             </button>
@@ -207,10 +207,10 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       )}
 
       {(phase === 'recall' || phase === 'feedback') && (
-        <div className="flex flex-col items-center gap-6 p-4 sm:p-6 bg-paper rounded-xl border border-hairline">
+        <div className="flex flex-col items-center gap-5 sm:gap-6 p-3.5 sm:p-6 bg-paper rounded-xl border border-hairline w-full max-w-[340px]">
           <div
-            className="grid gap-2 select-none"
-            style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 54px))` }}
+            className="grid gap-1.5 sm:gap-2 select-none w-full"
+            style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
           >
             {Array.from({ length: total }).map((_, i) => {
               const isSelected = chosenCells.has(i);
@@ -218,12 +218,12 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               let cellStyle = 'bg-surface hover:bg-recessed border-hairline hover:border-ink';
               if (phase === 'recall' && isSelected) {
-                cellStyle = 'bg-ink border-ink scale-105';
+                cellStyle = 'bg-ink border-ink motion-safe:scale-105';
               } else if (phase === 'feedback') {
                 if (wasLit) {
-                  cellStyle = 'bg-ink border-ink text-surface scale-105';
+                  cellStyle = 'bg-ink border-ink text-surface motion-safe:scale-105';
                 } else if (isSelected && !wasLit) {
-                  cellStyle = 'bg-vermilion border-vermilion text-surface scale-95';
+                  cellStyle = 'bg-vermilion border-vermilion text-surface';
                 }
               }
 
@@ -234,10 +234,10 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
                   disabled={phase === 'feedback'}
                   onClick={() => toggleRecallCell(i)}
                   aria-label={`Grid cell ${i + 1}`}
-                  className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${cellStyle}`}
+                  className={`w-full aspect-square rounded-lg sm:rounded-xl border-2 transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center cursor-pointer disabled:cursor-default ${cellStyle}`}
                 >
-                  {phase === 'feedback' && wasLit && <span className="font-mono font-bold text-surface text-base">✓</span>}
-                  {phase === 'feedback' && isSelected && !wasLit && <span className="font-mono font-bold text-surface text-base">✗</span>}
+                  {phase === 'feedback' && wasLit && <span className="font-mono font-bold text-surface text-sm sm:text-base">✓</span>}
+                  {phase === 'feedback' && isSelected && !wasLit && <span className="font-mono font-bold text-surface text-sm sm:text-base">✗</span>}
                 </button>
               );
             })}
@@ -247,7 +247,7 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             <button
               type="button"
               onClick={handleRecallSubmit}
-              className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer font-mono"
+              className="w-full sm:w-auto px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer font-mono tabular-nums"
             >
               Submit Recall ({chosenCells.size} / {k})
             </button>

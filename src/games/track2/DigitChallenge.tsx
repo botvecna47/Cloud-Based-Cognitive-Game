@@ -182,7 +182,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Equation Layout */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-5 bg-paper rounded-xl border border-hairline w-full">
+      <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 p-3.5 sm:p-5 bg-paper rounded-xl border border-hairline w-full">
         {Array.from({ length: puzzle.terms }).map((_, i) => {
           const chipId = slotAssignments[i];
           const chip = puzzle.bank.find(c => c.id === chipId);
@@ -192,8 +192,9 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             <React.Fragment key={i}>
               {/* Left slot */}
               <button
+                type="button"
                 onClick={() => handleSlotClick(i)}
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold flex items-center justify-center transition-all cursor-pointer select-none ${
+                className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl font-mono text-xl sm:text-3xl font-bold flex items-center justify-center transition-[background-color,border-color,color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer select-none ${
                   chip
                     ? 'bg-ink text-surface border-2 border-ink'
                     : isSlotActive
@@ -206,7 +207,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               {/* Operator */}
               {i < puzzle.usedOps.length && (
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-ink-secondary px-1">
+                <span className="font-mono text-xl sm:text-3xl font-bold text-ink-secondary px-0.5 sm:px-1">
                   {puzzle.usedOps[i] === '*' ? '×' : puzzle.usedOps[i]}
                 </span>
               )}
@@ -215,7 +216,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
         })}
 
         {/* Equals Sign */}
-        <span className="font-mono text-2xl sm:text-3xl font-bold text-vermilion px-1">=</span>
+        <span className="font-mono text-xl sm:text-3xl font-bold text-vermilion px-0.5 sm:px-1">=</span>
 
         {/* RHS Slot */}
         {(() => {
@@ -226,8 +227,9 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
           return (
             <button
+              type="button"
               onClick={() => handleSlotClick(rhsIndex)}
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold flex items-center justify-center transition-all cursor-pointer select-none ${
+              className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl font-mono text-xl sm:text-3xl font-bold flex items-center justify-center transition-[background-color,border-color,color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer select-none ${
                 rhsChip
                   ? 'bg-ink text-surface border-2 border-ink'
                   : isRhsActive
@@ -246,22 +248,23 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
         <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold">
           Available Digits
         </span>
-        <div className="flex flex-wrap justify-center gap-2.5 p-4 bg-paper rounded-xl border border-hairline">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 p-3.5 sm:p-4 bg-paper rounded-xl border border-hairline">
           {puzzle.bank.map(chip => {
             const isUsed = usedChipIds.has(chip.id);
             const isSelected = selectedChipId === chip.id;
 
             return (
               <button
+                type="button"
                 key={chip.id}
                 disabled={isUsed}
                 onClick={() => handleChipClick(chip.id)}
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-mono text-2xl font-bold transition-all select-none border ${
+                className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl font-mono text-xl sm:text-2xl font-bold transition-[background-color,border-color,color,transform,opacity] duration-150 ease-out select-none border ${
                   isUsed
                     ? 'bg-recessed text-ink-muted/50 border-hairline cursor-not-allowed opacity-50'
                     : isSelected
-                    ? 'bg-vermilion text-surface border-vermilion -translate-y-0.5 cursor-pointer'
-                    : 'bg-surface hover:bg-recessed text-ink border-hairline hover:border-ink active:scale-95 cursor-pointer'
+                    ? 'bg-vermilion text-surface border-vermilion motion-safe:-translate-y-0.5 motion-safe:enabled:active:scale-[0.96] cursor-pointer'
+                    : 'bg-surface hover:bg-recessed text-ink border-hairline hover:border-ink motion-safe:enabled:active:scale-[0.96] cursor-pointer'
                 }`}
               >
                 {chip.digit}
@@ -272,19 +275,21 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
         <button
+          type="button"
           onClick={handleCheck}
-          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 sm:flex-none px-6 sm:px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Check Equation
         </button>
         <button
+          type="button"
           onClick={() => {
             sound.playWrong();
             api.wrong();
           }}
-          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline transition-[background-color,color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer"
         >
           Skip
         </button>

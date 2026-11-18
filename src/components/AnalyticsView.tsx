@@ -93,10 +93,10 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       {/* High-Contrast Readiness Summary */}
-      <div className="p-7 sm:p-8 rounded-2xl bg-ink text-surface flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="flex items-center gap-6">
-          <div className="w-24 h-24 rounded-2xl bg-surface/10 border border-surface/20 flex flex-col items-center justify-center shrink-0">
-            <span className="font-mono text-3xl font-bold text-surface tabular-nums">{avgAbility}</span>
+      <div className="p-5 sm:p-8 rounded-2xl bg-ink text-surface flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-surface/10 border border-surface/20 flex flex-col items-center justify-center shrink-0">
+            <span className="font-mono text-2xl sm:text-3xl font-bold text-surface tabular-nums">{avgAbility}</span>
             <span className="font-mono text-[10px] uppercase tracking-widest text-vermilion mt-0.5">
               Index
             </span>
@@ -156,7 +156,7 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
             <div className="w-full h-1.5 rounded-full bg-recessed overflow-hidden">
               <div
-                className="h-full rounded-full bg-vermilion transition-all duration-500"
+                className="h-full rounded-full bg-vermilion transition-[width] duration-500 ease-out"
                 style={{ width: `${pillar.score}%` }}
               />
             </div>

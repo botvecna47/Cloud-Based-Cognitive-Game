@@ -97,12 +97,12 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
     }
   };
 
-  const renderRow = (items: SwitchItem[], size = 30) => (
-    <div className="flex items-center justify-center gap-2">
+  const renderRow = (items: SwitchItem[], size = 26) => (
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
       {items.map((it, idx) => (
         <div
           key={idx}
-          className="w-12 h-12 sm:w-14 sm:h-14 bg-surface rounded-xl border border-hairline flex items-center justify-center"
+          className="w-10 h-10 sm:w-14 sm:h-14 bg-surface rounded-lg sm:rounded-xl border border-hairline flex items-center justify-center"
         >
           <Shape name={it.s} color={it.c} size={size} />
         </div>
@@ -149,14 +149,15 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
         {puzzle.options.map((opt, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={() => handleSelect(opt)}
-            className="p-3 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center cursor-pointer"
+            className="p-3 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               {opt.map((item, i) => (
-                <div key={i} className="p-1">
-                  <Shape name={item.s} color={item.c} size={24} />
+                <div key={i} className="p-0.5 sm:p-1">
+                  <Shape name={item.s} color={item.c} size={22} />
                 </div>
               ))}
             </div>

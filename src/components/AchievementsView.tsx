@@ -83,15 +83,15 @@ export const AchievementsView: React.FC<{ onBack: () => void }> = ({ onBack }) =
           </div>
           <div className="w-full h-1.5 rounded-full bg-surface/15 overflow-hidden">
             <div
-              className="h-full bg-vermilion rounded-full transition-all duration-500"
+              className="h-full bg-vermilion rounded-full transition-[width] duration-500 ease-out"
               style={{ width: `${(unlockedCount / Math.max(1, achievements.length)) * 100}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 max-w-full scrollbar-none p-2 bg-surface rounded-2xl border border-hairline">
+      {/* Filter Tabs (concentric: p-2 [8px] + rounded-lg [8px] = rounded-2xl [16px]) */}
+      <div className="flex items-center gap-1 overflow-x-auto pb-0.5 max-w-full scrollbar-none p-2 bg-surface rounded-2xl border border-hairline">
         {[
           { id: 'all', label: 'All Badges' },
           { id: 'unlocked', label: `Unlocked (${unlockedCount})` },
@@ -104,7 +104,7 @@ export const AchievementsView: React.FC<{ onBack: () => void }> = ({ onBack }) =
             type="button"
             key={tab.id}
             onClick={() => setFilterCategory(tab.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
               filterCategory === tab.id
                 ? 'bg-ink text-surface'
                 : 'text-ink-secondary hover:bg-recessed hover:text-ink'

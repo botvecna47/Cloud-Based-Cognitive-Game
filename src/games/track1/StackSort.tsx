@@ -122,7 +122,7 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
       )}
 
       {/* Pegs Board */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-5 w-full p-4 sm:p-6 bg-paper rounded-xl border border-hairline min-h-[260px] items-end">
+      <div className="grid grid-cols-3 gap-2 sm:gap-5 w-full p-2.5 sm:p-6 bg-paper rounded-xl border border-hairline min-h-[240px] sm:min-h-[260px] items-end">
         {pegs.map((pegDisks, pegIdx) => {
           const isSelected = selectedPeg === pegIdx;
           const label = pegIdx === 0 ? 'Start' : pegIdx === 1 ? 'Aux' : 'Target';
@@ -133,7 +133,7 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
               key={pegIdx}
               onClick={() => handlePegClick(pegIdx)}
               aria-label={`${label} peg with ${pegDisks.length} disks${isSelected ? ', selected' : ''}`}
-              className={`relative flex flex-col items-center justify-end h-56 rounded-xl cursor-pointer transition-all duration-150 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermilion ${
+              className={`relative flex flex-col items-center justify-end h-52 sm:h-56 rounded-xl cursor-pointer transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] p-1.5 sm:p-2 ${
                 isSelected
                   ? 'bg-vermilion-wash border-2 border-vermilion'
                   : 'bg-surface/60 hover:bg-surface border-2 border-transparent hover:border-hairline'
@@ -141,22 +141,22 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
             >
               {/* Vertical Pole */}
               <div
-                className={`absolute bottom-9 w-2.5 rounded-t-full transition-colors ${
+                className={`absolute bottom-9 w-2 sm:w-2.5 rounded-t-full transition-colors duration-150 ${
                   isSelected ? 'bg-vermilion' : 'bg-hairline'
                 }`}
-                style={{ height: '164px' }}
+                style={{ height: '150px' }}
               />
 
               {/* Stacked Disks */}
-              <div className="relative z-10 flex flex-col-reverse items-center gap-1.5 w-full pb-1">
+              <div className="relative z-10 flex flex-col-reverse items-center gap-1 sm:gap-1.5 w-full pb-1">
                 {pegDisks.map(disk => {
-                  const widthPct = 36 + disk * 13;
+                  const widthPct = 40 + disk * 11;
                   const diskStyle = DISK_STYLES[(disk - 1) % DISK_STYLES.length];
                   return (
                     <div
                       key={disk}
                       style={{ width: `${widthPct}%` }}
-                      className={`h-7 rounded-md border flex items-center justify-center text-xs font-mono font-bold transition-all ${diskStyle}`}
+                      className={`h-6 sm:h-7 rounded-md border flex items-center justify-center text-[11px] sm:text-xs font-mono font-bold transition-[width] duration-150 ${diskStyle}`}
                     >
                       {disk}
                     </div>
@@ -166,14 +166,14 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               {/* Base Platform */}
               <div
-                className={`w-full h-2.5 rounded-sm transition-colors ${
+                className={`w-full h-2.5 rounded-sm transition-colors duration-150 ${
                   isSelected ? 'bg-vermilion' : 'bg-ink'
                 }`}
               />
 
               {/* Peg Label */}
               <span
-                className={`mt-2 font-mono text-[11px] font-bold uppercase tracking-wider ${
+                className={`mt-2 font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${
                   isSelected ? 'text-vermilion' : pegIdx === 2 ? 'text-vermilion' : 'text-ink-muted'
                 }`}
               >

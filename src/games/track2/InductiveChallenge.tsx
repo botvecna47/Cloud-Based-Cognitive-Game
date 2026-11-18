@@ -90,12 +90,13 @@ export const InductiveChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Tiles Row */}
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 p-5 bg-paper rounded-xl border border-hairline w-full">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-3 sm:gap-4 p-3.5 sm:p-5 bg-paper rounded-xl border border-hairline w-full">
         {puzzle.tiles.map((t, idx) => (
           <button
+            type="button"
             key={idx}
             onClick={() => handleTileClick(idx)}
-            className="w-20 h-20 sm:w-24 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center p-2 cursor-pointer"
+            className="h-20 sm:w-24 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-[background-color,border-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center p-2 cursor-pointer"
           >
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
               {Array.from({ length: t.cnt }).map((_, i) => (

@@ -9,6 +9,7 @@ import { isSupabaseConfigured } from '../services/supabase';
 interface ResultModalProps {
   game: GameMetadata;
   result: GameResult;
+  bestStreak?: number;
   hasNextInQueue: boolean;
   nextGameName?: string;
   onNextGame: () => void;
@@ -19,6 +20,7 @@ interface ResultModalProps {
 export const ResultModal: React.FC<ResultModalProps> = ({
   game,
   result,
+  bestStreak = 0,
   hasNextInQueue,
   nextGameName,
   onNextGame,
@@ -36,7 +38,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
   }, [result]);
 
   return (
-    <div className="flex flex-col gap-7 max-w-2xl mx-auto py-4 animate-fade-in">
+    <div className="flex flex-col gap-6 sm:gap-7 max-w-2xl mx-auto py-2 sm:py-4 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col items-center text-center gap-2">
         <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-vermilion font-medium">
@@ -45,27 +47,32 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight">
           {game.name}
         </h2>
-        <div className="flex items-center gap-2.5 mt-1 flex-wrap justify-center">
+        <div className="flex items-center gap-2 mt-1 flex-wrap justify-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface text-ink-secondary font-mono text-[11px] border border-hairline">
             <CheckCircle2 className="w-3.5 h-3.5 text-ink" />
-            <span>{savedToCloud ? 'Synced to Supabase Cloud' : 'Saved Locally (Sandbox)'}</span>
+            <span>{savedToCloud ? 'Synced to Cloud' : 'Saved Locally'}</span>
           </span>
           {result.xpEarned != null && result.xpEarned > 0 && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vermilion-wash text-vermilion font-mono font-bold text-[11px] tabular-nums">
               +{result.xpEarned.toLocaleString()} XP Earned
             </span>
           )}
+          {bestStreak >= 2 && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-ink text-surface font-mono font-bold text-[11px] tabular-nums">
+              Best Streak ×{bestStreak}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Main Stats Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Main Stats Strip (Hero card full-width on mobile, 3-col on sm+) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         {result.performanceIndex != null ? (
-          <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+          <div className="col-span-2 sm:col-span-1 p-5 sm:p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
               Performance Index
             </span>
-            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-1.5">
               {result.performanceIndex}
               <span className="text-sm text-ink-muted font-normal">/100</span>
             </div>
@@ -76,22 +83,22 @@ export const ResultModal: React.FC<ResultModalProps> = ({
             )}
           </div>
         ) : (
-          <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+          <div className="col-span-2 sm:col-span-1 p-5 sm:p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
               Total Score
             </span>
-            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-1.5">
               {result.score.toLocaleString()}
             </div>
             <span className="mt-2 font-mono text-[11px] text-ink-muted">POINTS</span>
           </div>
         )}
 
-        <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+        <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
           <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
             Levels Cleared
           </span>
-          <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+          <div className="font-mono text-3xl sm:text-4xl font-bold text-ink tabular-nums mt-1.5">
             {result.level}
           </div>
           <span className="mt-2 font-mono text-[11px] text-ink-muted tabular-nums">
@@ -99,11 +106,11 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           </span>
         </div>
 
-        <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+        <div className="p-5 sm:p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
           <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
             Accuracy
           </span>
-          <div className="font-mono text-4xl font-bold text-vermilion tabular-nums mt-2">
+          <div className="font-mono text-3xl sm:text-4xl font-bold text-vermilion tabular-nums mt-1.5">
             {result.accuracy}%
           </div>
           <span className="mt-2 font-mono text-[11px] text-ink-muted tabular-nums">
@@ -125,7 +132,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
                 key={ach.id}
                 className="flex items-center justify-between gap-3 bg-surface/10 p-3 rounded-xl border border-surface/15"
               >
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold text-surface text-sm">{ach.title}</div>
                   <div className="text-xs text-surface/75 mt-0.5">{ach.description}</div>
                 </div>
@@ -151,7 +158,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           <button
             type="button"
             onClick={onNextGame}
-            className="w-full sm:w-auto px-7 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-7 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>Next Module: {nextGameName}</span>
             <ArrowRight className="w-4 h-4" />
@@ -160,7 +167,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
           <button
             type="button"
             onClick={onPlayAgain}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Play Again</span>
@@ -170,7 +177,7 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         <button
           type="button"
           onClick={onHome}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] flex items-center justify-center gap-2 cursor-pointer"
         >
           <Home className="w-4 h-4" />
           <span>Back to Arena</span>

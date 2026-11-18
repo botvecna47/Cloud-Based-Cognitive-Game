@@ -92,12 +92,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
       aria-label="Account Sign In"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-md p-6 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl overflow-hidden">
+      <div className="relative w-full max-w-md max-h-[90dvh] overflow-y-auto overscroll-contain p-5 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
         {/* Close button */}
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close authentication modal"
-          className="absolute top-5 right-5 p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed transition-colors cursor-pointer"
+          className="absolute top-4 right-4 w-10 h-10 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed flex items-center justify-center transition-colors duration-150 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -131,7 +132,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs (concentric: p-1 [4px] + rounded-lg [8px] = rounded-xl [12px]) */}
         <div className="flex p-1 mb-5 bg-recessed rounded-xl border border-hairline">
           <button
             type="button"
@@ -139,9 +140,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
               setTab('signin');
               setFormError(null);
             }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer ${
               tab === 'signin'
-                ? 'bg-ink text-surface shadow-sm'
+                ? 'bg-ink text-surface'
                 : 'text-ink-secondary hover:text-ink'
             }`}
           >
@@ -153,9 +154,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
               setTab('signup');
               setFormError(null);
             }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors duration-150 cursor-pointer ${
               tab === 'signup'
-                ? 'bg-ink text-surface shadow-sm'
+                ? 'bg-ink text-surface'
                 : 'text-ink-secondary hover:text-ink'
             }`}
           >
@@ -236,7 +237,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-2 py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full mt-2 py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {isSubmitting ? (
               <span className="font-mono text-xs uppercase tracking-wider">Authenticating...</span>

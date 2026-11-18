@@ -13,14 +13,22 @@ export const FlashToast: React.FC<{ toast: ToastData | null }> = ({ toast }) => 
     <div
       role="status"
       aria-live="polite"
-      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 rounded-full font-mono font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-2 pointer-events-none animate-bounce-subtle ${
-        toast.isBad
-          ? 'bg-vermilion text-surface'
-          : 'bg-ink text-surface'
-      }`}
+      className="fixed top-4 sm:top-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
     >
-      {toast.isBad ? <AlertCircle className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5 text-vermilion" />}
-      <span>{toast.message}</span>
+      <div
+        className={`max-w-full px-4 sm:px-5 py-2.5 rounded-full font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider shadow-lg flex items-center gap-2 border animate-toast-in ${
+          toast.isBad
+            ? 'bg-vermilion text-surface border-vermilion-hover'
+            : 'bg-ink text-surface border-ink'
+        }`}
+      >
+        {toast.isBad ? (
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+        ) : (
+          <Check className="w-3.5 h-3.5 text-vermilion shrink-0" />
+        )}
+        <span className="truncate">{toast.message}</span>
+      </div>
     </div>
   );
 };

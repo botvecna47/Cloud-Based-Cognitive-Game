@@ -83,11 +83,12 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
       aria-label="Player Profile and Settings"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
+      <div className="relative w-full max-w-lg max-h-[90dvh] overflow-y-auto overscroll-contain p-5 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
         <button
+          type="button"
           onClick={onClose}
           aria-label="Close settings modal"
-          className="absolute top-5 right-5 p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed transition-colors cursor-pointer"
+          className="absolute top-4 right-4 w-10 h-10 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed flex items-center justify-center transition-colors duration-150 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -155,7 +156,7 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
                       sound.playClick();
                       setSelectedAvatar(avatar.id);
                     }}
-                    className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-[background-color,border-color,color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer ${
                       isSelected
                         ? 'bg-ink text-surface border-ink'
                         : 'bg-paper text-ink border-hairline hover:bg-recessed'
@@ -198,7 +199,7 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+            className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface transition-[background-color,transform] duration-150 ease-out motion-safe:enabled:active:scale-[0.96] cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {saveSuccess ? (
               <>
