@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/dbService';
 import { LeaderboardEntry, GameId } from '../types';
 import { ALL_GAMES } from '../data/games';
-import { Trophy, Crown, ArrowLeft, RefreshCw, Search, Play } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Search, Play } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { getAvatarIcon } from '../utils/avatars';
 
@@ -37,28 +37,17 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
 
   const topThree = filteredEntries.slice(0, 3);
 
-  const rankBadgeColors: Record<string, string> = {
-    Grandmaster: 'text-purple-300 bg-purple-950/60 border-purple-500/40',
-    Master: 'text-rose-300 bg-rose-950/60 border-rose-500/40',
-    Diamond: 'text-cyan-300 bg-cyan-950/60 border-cyan-500/40',
-    Platinum: 'text-teal-300 bg-teal-950/60 border-teal-500/40',
-    Gold: 'text-amber-300 bg-amber-950/60 border-amber-500/40',
-    Silver: 'text-slate-300 bg-slate-800 border-slate-600',
-    Bronze: 'text-orange-400 bg-orange-950/60 border-orange-500/40',
-  };
-
   return (
-    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto py-2 animate-fade-in">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="flex flex-col gap-7 w-full animate-fade-in">
+      {/* Header */}
+      <div className="flex items-end justify-between flex-wrap gap-4 border-b border-hairline pb-5">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2.5">
-            <Trophy className="w-8 h-8 text-amber-400" />
-            <span>Global Hall of Fame</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-vermilion font-medium">
+            Global Standings
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight mt-1">
+            Leaderboard
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-            Live competitive rankings powered by Supabase Cloud Database.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -69,10 +58,10 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
                 sound.playClick();
                 onPlayGame(selectedGame as GameId);
               }}
-              className="px-3.5 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-vermilion hover:bg-vermilion-hover text-surface text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Play Game</span>
+              <span>Play Module</span>
             </button>
           )}
           <button
@@ -80,13 +69,14 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
             onClick={handleRefresh}
             title="Refresh Leaderboard"
             aria-label="Refresh Leaderboard"
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all cursor-pointer"
+            className="p-2.5 rounded-xl bg-surface hover:bg-recessed text-ink border border-hairline transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
           <button
+            type="button"
             onClick={onBack}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-surface hover:bg-recessed text-ink border border-hairline text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Arena</span>
@@ -94,203 +84,184 @@ export const LeaderboardView: React.FC<{ onBack: () => void; onPlayGame: (gameId
         </div>
       </div>
 
-      {/* Game Filter Carousel & Search */}
-      <div className="flex items-center justify-between flex-wrap gap-3 p-2 bg-slate-900/90 rounded-2xl border border-slate-800">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none">
+      {/* Filters & Search */}
+      <div className="flex items-center justify-between flex-wrap gap-3 p-2.5 bg-surface rounded-2xl border border-hairline">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 max-w-full scrollbar-none">
           <button
+            type="button"
             onClick={() => {
               sound.playClick();
               setSelectedGame('all');
             }}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
               selectedGame === 'all'
-                ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
-                : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-surface'
+                : 'text-ink-secondary hover:bg-recessed hover:text-ink'
             }`}
           >
-            ⭐ Overall XP
+            Overall XP
           </button>
 
           {ALL_GAMES.map(g => (
             <button
+              type="button"
               key={g.id}
               onClick={() => {
                 sound.playClick();
                 setSelectedGame(g.id);
               }}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 selectedGame === g.id
-                  ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
-                  : 'bg-slate-800/80 text-slate-400 hover:text-slate-200'
+                  ? 'bg-ink text-surface'
+                  : 'text-ink-secondary hover:bg-recessed hover:text-ink'
               }`}
             >
-              <span>{g.icon}</span>
-              <span>{g.name}</span>
+              {g.name}
             </button>
           ))}
         </div>
 
         <div className="relative w-full sm:w-56">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-muted" />
           <input
             type="text"
             placeholder="Search players..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+            className="w-full pl-9 pr-3 py-1.5 bg-paper border border-hairline rounded-xl text-xs text-ink placeholder-ink-muted focus:outline-none focus:border-ink"
           />
         </div>
       </div>
 
-      {/* Podium for Top 3 */}
+      {/* Editorial Top 3 Podium Cards */}
       {topThree.length >= 2 && (
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 items-end pt-4 pb-2 max-w-lg mx-auto w-full">
-          {/* #2 Silver */}
-          {topThree[1] && (
-            <div className="flex flex-col items-center">
-              <div className="relative mb-2">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 p-0.5 shadow-lg shadow-slate-400/20 flex items-center justify-center text-2xl">
-                  {getAvatarIcon(topThree[1].avatarUrl)}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {topThree.map((entry, idx) => {
+            const isFirst = idx === 0;
+            return (
+              <div
+                key={entry.userId + idx}
+                className={`p-6 rounded-2xl border flex flex-col justify-between gap-4 ${
+                  isFirst
+                    ? 'bg-ink text-surface border-ink'
+                    : 'bg-surface text-ink border-hairline'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`font-mono text-xs font-bold uppercase tracking-widest ${
+                      isFirst ? 'text-vermilion' : 'text-ink-muted'
+                    }`}
+                  >
+                    Rank #{idx + 1}
+                  </span>
+                  <span
+                    className={`font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                      isFirst
+                        ? 'border-surface/20 text-surface/80'
+                        : 'border-hairline text-ink-secondary bg-recessed/60'
+                    }`}
+                  >
+                    {entry.rankTier}
+                  </span>
                 </div>
-                <div className="absolute -top-2 -right-1.5 px-2 py-0.5 bg-slate-300 text-slate-950 font-black text-xs rounded-full shadow">
-                  #2
-                </div>
-              </div>
-              <span className="text-xs sm:text-sm font-bold text-white text-center truncate max-w-[90px]">
-                {topThree[1].username}
-              </span>
-              <span className="text-xs font-mono font-bold text-cyan-300">
-                {selectedGame === 'all' ? `${topThree[1].totalXp} XP` : `${topThree[1].bestScore || 0} pts`}
-              </span>
-              <div className="w-full h-20 sm:h-24 bg-gradient-to-t from-slate-800 to-slate-700/80 rounded-t-2xl border-t border-slate-600 flex items-center justify-center font-black text-slate-400 text-xl mt-2">
-                2nd
-              </div>
-            </div>
-          )}
 
-          {/* #1 Gold */}
-          {topThree[0] && (
-            <div className="flex flex-col items-center">
-              <Crown className="w-7 h-7 text-amber-400 mb-1 animate-bounce" />
-              <div className="relative mb-2">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-200 p-0.5 shadow-xl shadow-amber-400/30 flex items-center justify-center text-3xl">
-                  {getAvatarIcon(topThree[0].avatarUrl)}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono text-lg shrink-0 ${
+                      isFirst ? 'bg-vermilion text-surface' : 'bg-recessed text-ink'
+                    }`}
+                  >
+                    {getAvatarIcon(entry.avatarUrl)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-display text-lg font-semibold truncate">{entry.username}</div>
+                    <div
+                      className={`font-mono text-xs tabular-nums ${
+                        isFirst ? 'text-surface/75' : 'text-ink-muted'
+                      }`}
+                    >
+                      {entry.gamesPlayed} sessions
+                    </div>
+                  </div>
                 </div>
-                <div className="absolute -top-2 -right-1.5 px-2.5 py-0.5 bg-amber-400 text-slate-950 font-black text-xs rounded-full shadow">
-                  #1
-                </div>
-              </div>
-              <span className="text-xs sm:text-base font-extrabold text-amber-300 text-center truncate max-w-[110px]">
-                {topThree[0].username}
-              </span>
-              <span className="text-xs sm:text-sm font-mono font-black text-emerald-400">
-                {selectedGame === 'all' ? `${topThree[0].totalXp} XP` : `${topThree[0].bestScore || 0} pts`}
-              </span>
-              <div className="w-full h-28 sm:h-32 bg-gradient-to-t from-amber-950/60 to-amber-800/80 rounded-t-2xl border-t border-amber-400 flex items-center justify-center font-black text-amber-300 text-2xl mt-2 shadow-lg shadow-amber-500/10">
-                1st
-              </div>
-            </div>
-          )}
 
-          {/* #3 Bronze */}
-          {topThree[2] && (
-            <div className="flex flex-col items-center">
-              <div className="relative mb-2">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-amber-700 to-orange-400 p-0.5 shadow-lg shadow-amber-700/20 flex items-center justify-center text-2xl">
-                  {getAvatarIcon(topThree[2].avatarUrl)}
-                </div>
-                <div className="absolute -top-2 -right-1.5 px-2 py-0.5 bg-amber-700 text-white font-black text-xs rounded-full shadow">
-                  #3
+                <div className="pt-3 border-t border-current/15 font-mono text-xl font-bold tabular-nums">
+                  {selectedGame === 'all'
+                    ? `${entry.totalXp.toLocaleString()} XP`
+                    : `${(entry.bestScore || 0).toLocaleString()} pts`}
                 </div>
               </div>
-              <span className="text-xs sm:text-sm font-bold text-white text-center truncate max-w-[90px]">
-                {topThree[2].username}
-              </span>
-              <span className="text-xs font-mono font-bold text-cyan-300">
-                {selectedGame === 'all' ? `${topThree[2].totalXp} XP` : `${topThree[2].bestScore || 0} pts`}
-              </span>
-              <div className="w-full h-16 sm:h-20 bg-gradient-to-t from-slate-800 to-slate-700/80 rounded-t-2xl border-t border-amber-700/80 flex items-center justify-center font-black text-amber-600 text-xl mt-2">
-                3rd
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
       )}
 
-      {/* Leaderboard Table */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-xl overflow-x-auto">
+      {/* Standings Table */}
+      <div className="rounded-2xl bg-surface border border-hairline overflow-x-auto">
         {isLoading ? (
-          <div className="text-center py-12 text-slate-400 text-sm flex items-center justify-center gap-2">
-            <RefreshCw className="w-4 h-4 animate-spin text-cyan-400" />
-            <span>Fetching live cloud rankings...</span>
+          <div className="text-center py-14 text-ink-muted text-sm flex items-center justify-center gap-2 font-mono">
+            <RefreshCw className="w-4 h-4 animate-spin text-vermilion" />
+            <span>Loading standings...</span>
           </div>
         ) : filteredEntries.length === 0 ? (
-          <div className="text-center py-10 text-slate-500 text-sm">
-            No player records found for this game yet. Be the first to set a record!
+          <div className="text-center py-12 text-ink-muted text-sm">
+            No player records found for this module yet. Be the first to set a record.
           </div>
         ) : (
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[11px]">
-                <th className="py-2.5 px-3">Rank</th>
-                <th className="py-2.5 px-3">Player</th>
-                <th className="py-2.5 px-3">Tier</th>
-                <th className="py-2.5 px-3 text-right">
-                  {selectedGame === 'all' ? 'Total Experience' : 'High Score'}
+              <tr className="border-b border-hairline text-ink-muted font-mono uppercase tracking-wider text-[10px]">
+                <th className="py-3.5 px-5">Rank</th>
+                <th className="py-3.5 px-5">Player</th>
+                <th className="py-3.5 px-5">Tier</th>
+                <th className="py-3.5 px-5 text-right">
+                  {selectedGame === 'all' ? 'Total XP' : 'High Score'}
                 </th>
-                {selectedGame !== 'all' && (
-                  <th className="py-2.5 px-3 text-right">Accuracy</th>
-                )}
+                {selectedGame !== 'all' && <th className="py-3.5 px-5 text-right">Accuracy</th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60 font-mono">
+            <tbody className="divide-y divide-hairline/70">
               {filteredEntries.map((player, idx) => (
-                <tr
-                  key={player.userId + idx}
-                  className="hover:bg-slate-800/50 transition-colors text-slate-300"
-                >
-                  <td className="py-3 px-3 font-bold">
+                <tr key={player.userId + idx} className="hover:bg-paper/70 transition-colors">
+                  <td className="py-3.5 px-5 font-mono font-bold tabular-nums">
                     <span
-                      className={`inline-flex items-center justify-center w-6 h-6 rounded-lg text-xs font-black ${
+                      className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-xs ${
                         idx === 0
-                          ? 'bg-amber-400 text-slate-950'
-                          : idx === 1
-                          ? 'bg-slate-300 text-slate-950'
-                          : idx === 2
-                          ? 'bg-amber-700 text-white'
-                          : 'text-slate-400'
+                          ? 'bg-vermilion text-surface'
+                          : idx < 3
+                          ? 'bg-ink text-surface'
+                          : 'text-ink-muted'
                       }`}
                     >
                       {idx + 1}
                     </span>
                   </td>
-                  <td className="py-3 px-3 font-sans font-semibold text-white flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base">
-                      {getAvatarIcon(player.avatarUrl)}
-                    </div>
-                    <div>
-                      <div>{player.username}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">
-                        {player.gamesPlayed} sessions completed
+                  <td className="py-3.5 px-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-recessed text-ink font-mono flex items-center justify-center text-sm shrink-0">
+                        {getAvatarIcon(player.avatarUrl)}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-ink">{player.username}</div>
+                        <div className="text-[11px] text-ink-muted font-mono tabular-nums">
+                          {player.gamesPlayed} sessions
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3 px-3 font-sans">
-                    <span
-                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                        rankBadgeColors[player.rankTier] || rankBadgeColors.Bronze
-                      }`}
-                    >
+                  <td className="py-3.5 px-5">
+                    <span className="font-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full bg-recessed text-ink-secondary font-medium">
                       {player.rankTier}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-right font-black text-cyan-300 text-sm">
+                  <td className="py-3.5 px-5 text-right font-mono font-bold text-ink tabular-nums">
                     {selectedGame === 'all'
                       ? `${player.totalXp.toLocaleString()} XP`
-                      : `${player.bestScore?.toLocaleString() || 0} pts`}
+                      : `${(player.bestScore || 0).toLocaleString()} pts`}
                   </td>
                   {selectedGame !== 'all' && (
-                    <td className="py-3 px-3 text-right font-semibold text-emerald-400">
+                    <td className="py-3.5 px-5 text-right font-mono font-semibold text-vermilion tabular-nums">
                       {player.bestAccuracy !== undefined ? `${player.bestAccuracy}%` : '—'}
                     </td>
                   )}

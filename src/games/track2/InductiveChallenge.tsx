@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { GameAPI } from '../../types';
-import { Shape, SHAPES, COLORS } from '../../utils/shapes';
+import { Shape, SHAPES } from '../../utils/shapes';
 import { sound } from '../../utils/sound';
 
 interface InductiveTile {
@@ -9,6 +9,8 @@ interface InductiveTile {
   cnt: number;
   fill: boolean;
 }
+
+const DISTINCT_SHAPE_COLORS = ['ink', 'vermilion', 'blue', 'green', 'amber', 'purple'] as const;
 
 function randInt(a: number, b: number) {
   return a + Math.floor(Math.random() * (b - a + 1));
@@ -31,7 +33,7 @@ export const InductiveChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
     const useAttrs = L <= 2 ? ['shape', 'color'] : ['shape', 'color', 'count', 'fill'];
     const ruleAttr = useAttrs[Math.floor(Math.random() * useAttrs.length)];
 
-    const colorKeys = Object.keys(COLORS).filter(c => c !== 'white' && c !== 'navy');
+    const colorKeys = [...DISTINCT_SHAPE_COLORS];
     const base: InductiveTile = {
       s: SHAPES[Math.floor(Math.random() * SHAPES.length)],
       col: sample(colorKeys, 1)[0],
@@ -79,34 +81,34 @@ export const InductiveChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          All tiles except one follow a shared rule. Spot the odd one out:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Every tile except one shares a rule. Select the odd one out:
         </p>
-        <p className="text-xs text-slate-400 mt-1">
-          Look for the single tile that differs in shape, color, quantity, or fill.
+        <p className="text-xs text-ink-muted mt-1">
+          Check shape, color, quantity, and solid/hollow fill.
         </p>
       </div>
 
       {/* Tiles Row */}
-      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl w-full">
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 p-5 bg-paper rounded-xl border border-hairline w-full">
         {puzzle.tiles.map((t, idx) => (
           <button
             key={idx}
             onClick={() => handleTileClick(idx)}
-            className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-800 hover:bg-slate-700/90 rounded-2xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-150 active:scale-95 shadow-md flex items-center justify-center p-2 cursor-pointer"
+            className="w-20 h-20 sm:w-24 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center p-2 cursor-pointer"
           >
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
               {Array.from({ length: t.cnt }).map((_, i) => (
-                <Shape key={i} name={t.s} color={t.col} size={28} filled={t.fill} />
+                <Shape key={i} name={t.s} color={t.col} size={26} filled={t.fill} />
               ))}
             </div>
           </button>
         ))}
       </div>
 
-      <div className="text-slate-400 text-xs text-center">
-        Trust the rule you can articulate in words! Click the unique card to submit.
-      </div>
+      <p className="text-ink-muted text-xs text-center">
+        Select the single card that breaks the group pattern.
+      </p>
     </div>
   );
 };

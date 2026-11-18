@@ -2,8 +2,9 @@ import { defineConfig, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
+// Zero external font CDNs — all fonts served locally from /fonts/*.woff2
 const PRODUCTION_META_CSP =
-  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self';";
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self';";
 
 const PRODUCTION_HEADER_CSP = `${PRODUCTION_META_CSP} frame-ancestors 'none';`;
 
@@ -26,7 +27,6 @@ function productionCspPlugin(): Plugin {
   };
 }
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),

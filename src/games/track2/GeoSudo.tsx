@@ -84,7 +84,7 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
     for (let r = 0; r < puzzle.n; r++) {
       for (let c = 0; c < puzzle.n; c++) {
         if (currentGrid[r][c] < 0) {
-          setErrorMsg('Fill every cell before checking!');
+          setErrorMsg('Fill every cell before checking.');
           sound.playWrong();
           return;
         }
@@ -126,19 +126,19 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Each shape must appear exactly once in every row and column:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Every shape must appear exactly once in each row and column:
         </p>
       </div>
 
       {errorMsg && (
-        <div className="text-xs sm:text-sm font-semibold text-rose-300 bg-rose-950/60 border border-rose-500/40 px-4 py-1.5 rounded-lg">
+        <div className="text-xs sm:text-sm font-medium text-vermilion bg-vermilion-wash border border-vermilion/30 px-4 py-1.5 rounded-lg">
           {errorMsg}
         </div>
       )}
 
       {/* Grid */}
-      <div className="p-3 sm:p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="p-3 sm:p-5 bg-paper rounded-xl border border-hairline">
         <div
           className="grid gap-1.5 sm:gap-2 select-none"
           style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(44px, 54px))` }}
@@ -152,19 +152,20 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
                 <button
                   key={`${r}-${c}`}
                   onClick={() => handleCellClick(r, c)}
+                  aria-label={`Row ${r + 1} column ${c + 1}${isGiven ? ' locked clue' : ''}`}
                   className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 flex items-center justify-center transition-all ${
                     isGiven
-                      ? 'bg-slate-800/60 border-slate-700/60 cursor-default opacity-90'
+                      ? 'bg-recessed border-hairline cursor-default'
                       : val >= 0
-                      ? 'bg-slate-800 border-cyan-400 hover:border-cyan-300 shadow-sm cursor-pointer'
-                      : 'bg-slate-800/90 border-dashed border-slate-600 hover:border-cyan-400/80 cursor-pointer'
+                      ? 'bg-surface border-ink hover:border-vermilion cursor-pointer'
+                      : 'bg-surface border-dashed border-hairline hover:border-ink cursor-pointer'
                   }`}
                 >
                   {shapeName && (
                     <Shape
                       name={shapeName}
-                      color={isGiven ? 'teal' : 'cyan'}
-                      size={28}
+                      color={isGiven ? 'stone' : 'vermilion'}
+                      size={26}
                       filled={true}
                     />
                   )}
@@ -177,10 +178,10 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
 
       {/* Shape Palette */}
       <div className="flex flex-col items-center gap-2">
-        <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold">
           Select Shape to Place
         </span>
-        <div className="flex items-center gap-2 p-2 bg-slate-900/60 rounded-2xl border border-slate-800">
+        <div className="flex items-center gap-2 p-2 bg-paper rounded-xl border border-hairline">
           {symbols.map((sym, idx) => {
             const isSelected = selectedShapeIndex === idx;
             return (
@@ -190,13 +191,15 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
                   sound.playClick();
                   setSelectedShapeIndex(idx);
                 }}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+                aria-label={`Select ${sym}`}
+                aria-pressed={isSelected}
+                className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all cursor-pointer border ${
                   isSelected
-                    ? 'bg-cyan-500/20 border-2 border-cyan-400 ring-4 ring-cyan-400/30 scale-105'
-                    : 'bg-slate-800 hover:bg-slate-700 border-2 border-slate-700'
+                    ? 'bg-ink border-ink scale-105'
+                    : 'bg-surface hover:bg-recessed border-hairline'
                 }`}
               >
-                <Shape name={sym} color={isSelected ? 'cyan' : 'white'} size={28} />
+                <Shape name={sym} color={isSelected ? 'white' : 'ink'} size={26} />
               </button>
             );
           })}
@@ -204,10 +207,10 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={handleCheck}
-          className="px-8 py-3 rounded-xl font-bold text-base sm:text-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
         >
           Check Grid
         </button>
@@ -216,7 +219,7 @@ export const GeoSudo: React.FC<{ api: GameAPI }> = ({ api }) => {
             sound.playWrong();
             api.wrong();
           }}
-          className="px-5 py-3 rounded-xl font-semibold text-slate-400 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700 active:scale-95 transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
         >
           Skip
         </button>

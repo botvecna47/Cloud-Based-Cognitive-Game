@@ -119,45 +119,45 @@ export const MatrixComplete: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
+        <p className="text-ink text-base sm:text-lg font-medium">
           A is to B as C is to which tile? Complete the 2×2 matrix:
         </p>
       </div>
 
       {/* 2x2 Matrix */}
-      <div className="grid grid-cols-2 gap-3.5 p-4 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="grid grid-cols-2 gap-3.5 p-4 bg-paper rounded-xl border border-hairline">
         {/* Cell A */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-slate-800/90 rounded-xl border border-slate-700 flex items-center justify-center p-2 shadow-inner">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
           {renderTileContent(puzzle.A, 30)}
         </div>
 
         {/* Cell B */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-slate-800/90 rounded-xl border border-slate-700 flex items-center justify-center p-2 shadow-inner">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
           {renderTileContent(puzzle.B, 30)}
         </div>
 
         {/* Cell C */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-slate-800/90 rounded-xl border border-slate-700 flex items-center justify-center p-2 shadow-inner">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-surface rounded-xl border border-hairline flex items-center justify-center p-2">
           {renderTileContent(puzzle.C, 30)}
         </div>
 
         {/* Question Mark Target Cell */}
-        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-cyan-950/30 rounded-xl border-2 border-dashed border-cyan-400/60 flex items-center justify-center font-mono font-black text-4xl text-cyan-400 animate-pulse shadow-sm">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 bg-vermilion-wash rounded-xl border-2 border-dashed border-vermilion flex items-center justify-center font-mono font-bold text-4xl text-vermilion">
           ?
         </div>
       </div>
 
-      <div className="text-slate-400 text-xs sm:text-sm text-center">
-        Identify the rule used across the top row and apply it to tile C below.
-      </div>
+      <p className="text-ink-muted text-xs sm:text-sm text-center">
+        Identify the transformation across the top row and apply it to the bottom row.
+      </p>
 
       {/* 4 Candidate Options */}
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className="grid grid-cols-2 gap-3.5 w-full">
         {puzzle.options.map((opt, idx) => (
           <button
             key={idx}
             onClick={() => handleSelect(opt)}
-            className="h-20 sm:h-24 bg-slate-800 hover:bg-slate-700/90 rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-150 active:scale-95 shadow-md flex items-center justify-center p-2 cursor-pointer"
+            className="h-20 sm:h-24 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center p-2 cursor-pointer"
           >
             {renderTileContent(opt, 28)}
           </button>

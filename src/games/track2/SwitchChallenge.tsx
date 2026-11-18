@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
 import { GameAPI } from '../../types';
-import { Shape, SHAPES, COLORS } from '../../utils/shapes';
+import { Shape, SHAPES } from '../../utils/shapes';
 import { sound } from '../../utils/sound';
 
 interface SwitchItem {
   s: string;
   c: string;
 }
+
+const DISTINCT_SHAPE_COLORS = ['ink', 'vermilion', 'blue', 'green', 'amber', 'purple'] as const;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -30,7 +32,7 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   const len = Math.min(3 + Math.floor(L / 2), 5);
 
   const puzzle = useMemo(() => {
-    const colorKeys = sample(Object.keys(COLORS).filter(c => c !== 'white' && c !== 'navy'), 3);
+    const colorKeys = sample([...DISTINCT_SHAPE_COLORS], 3);
 
     const makeUniqueSeq = (): SwitchItem[] => {
       const seqShapes = sample([...SHAPES], len);
@@ -95,12 +97,12 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
     }
   };
 
-  const renderRow = (items: SwitchItem[], size = 32) => (
+  const renderRow = (items: SwitchItem[], size = 30) => (
     <div className="flex items-center justify-center gap-2">
       {items.map((it, idx) => (
         <div
           key={idx}
-          className="w-12 h-12 sm:w-14 sm:h-14 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-center shadow-inner"
+          className="w-12 h-12 sm:w-14 sm:h-14 bg-surface rounded-xl border border-hairline flex items-center justify-center"
         >
           <Shape name={it.s} color={it.c} size={size} />
         </div>
@@ -111,40 +113,45 @@ export const SwitchChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Deduce how the switch rearranges the items:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Deduce how the permutation switch rearranges the sequence:
         </p>
       </div>
 
       {/* Demonstration Example */}
-      <div className="flex flex-col items-center gap-2.5 p-4 sm:p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl w-full">
-        <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Example Transformation</span>
-        {renderRow(puzzle.exampleIn, 30)}
-        <div className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-mono font-bold text-xs uppercase tracking-widest shadow-md">
-          SWITCH ⮯
+      <div className="flex flex-col items-center gap-2.5 p-4 sm:p-5 bg-paper rounded-xl border border-hairline w-full">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold">
+          Example Transformation
+        </span>
+        {renderRow(puzzle.exampleIn, 28)}
+        <div className="px-4 py-1 rounded-md bg-ink text-surface font-mono font-bold text-[11px] uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+          <span>SWITCH</span>
+          <span className="text-vermilion">↓</span>
         </div>
-        {renderRow(puzzle.exampleOut, 30)}
+        {renderRow(puzzle.exampleOut, 28)}
       </div>
 
       {/* Question Prompt */}
       <div className="flex flex-col items-center gap-2 w-full">
-        <p className="text-sm font-semibold text-cyan-300">New sequence enters the switch:</p>
-        <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+        <p className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-vermilion">
+          New Input Entering Switch
+        </p>
+        <div className="p-3 bg-paper rounded-xl border border-hairline">
           {renderRow(puzzle.newIn, 28)}
         </div>
       </div>
 
-      <div className="text-xs text-slate-400 text-center">
-        Which of the 4 options below represents the correct output sequence?
-      </div>
+      <p className="text-xs text-ink-muted text-center">
+        Select the output sequence produced by the same rule:
+      </p>
 
       {/* 4 Choices */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
         {puzzle.options.map((opt, idx) => (
           <button
             key={idx}
             onClick={() => handleSelect(opt)}
-            className="p-3 bg-slate-800 hover:bg-slate-700/90 rounded-xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-150 active:scale-95 shadow-md flex items-center justify-center cursor-pointer"
+            className="p-3 bg-surface hover:bg-recessed rounded-xl border border-hairline hover:border-ink transition-all duration-150 active:scale-[0.98] flex items-center justify-center cursor-pointer"
           >
             <div className="flex items-center gap-1.5">
               {opt.map((item, i) => (

@@ -110,33 +110,39 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
-      {/* Instructions header depending on phase */}
+      {/* Phase Pill */}
       <div className="text-center">
         {phase === 'memorize' && (
-          <div className="inline-flex items-center gap-2 text-amber-300 bg-amber-950/40 px-5 py-2 rounded-full border border-amber-500/30 text-lg font-medium animate-pulse">
-            <span>🧠</span>
+          <div className="inline-flex items-center gap-2.5 text-ink bg-recessed px-5 py-2 rounded-full border border-hairline text-sm sm:text-base font-medium">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-vermilion">
+              PHASE 1
+            </span>
             <span>
-              Memorize the <strong className="text-white font-bold">{k}</strong> highlighted cells!
+              Memorize the <strong className="font-mono font-bold text-ink">{k}</strong> highlighted cells
             </span>
           </div>
         )}
         {phase === 'symmetry' && (
-          <div className="inline-flex items-center gap-2 text-cyan-300 bg-cyan-950/40 px-5 py-2 rounded-full border border-cyan-500/30 text-lg font-medium">
-            <span>🪞</span>
-            <span>Quick Check: Are these two shapes horizontal mirror images?</span>
+          <div className="inline-flex items-center gap-2.5 text-ink bg-recessed px-5 py-2 rounded-full border border-hairline text-sm sm:text-base font-medium">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-vermilion">
+              PHASE 2
+            </span>
+            <span>Are these two shapes horizontal mirror images?</span>
           </div>
         )}
         {(phase === 'recall' || phase === 'feedback') && (
-          <div className="inline-flex items-center gap-2 text-emerald-300 bg-emerald-950/40 px-5 py-2 rounded-full border border-emerald-500/30 text-lg font-medium">
-            <span>🎯</span>
-            <span>Click the cells that were originally lit, then press Recall:</span>
+          <div className="inline-flex items-center gap-2.5 text-surface bg-ink px-5 py-2 rounded-full text-sm sm:text-base font-medium">
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-vermilion">
+              PHASE 3
+            </span>
+            <span>Select the cells that were originally lit</span>
           </div>
         )}
       </div>
 
       {/* Main Interactive Stage */}
       {phase === 'memorize' && (
-        <div className="p-4 sm:p-6 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+        <div className="p-4 sm:p-6 bg-paper rounded-xl border border-hairline">
           <div
             className="grid gap-2 select-none"
             style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 54px))` }}
@@ -148,8 +154,8 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
                   key={i}
                   className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 transition-all flex items-center justify-center ${
                     isLit
-                      ? 'bg-gradient-to-br from-amber-300 to-amber-500 border-amber-200 shadow-lg shadow-amber-500/40 scale-105'
-                      : 'bg-slate-800 border-slate-700/80'
+                      ? 'bg-vermilion border-ink scale-105'
+                      : 'bg-surface border-hairline'
                   }`}
                 />
               );
@@ -159,40 +165,40 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       )}
 
       {phase === 'symmetry' && (
-        <div className="flex flex-col items-center gap-6 p-6 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl w-full">
+        <div className="flex flex-col items-center gap-6 p-6 bg-paper rounded-xl border border-hairline w-full">
           <div className="flex items-center justify-center gap-6 sm:gap-10">
             {/* Left Shape */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center shadow-inner">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-surface rounded-xl border border-hairline flex items-center justify-center">
               <svg width="48" height="48" viewBox="0 0 44 44" aria-hidden="true">
-                <path d={glyphPath} fill="#20B8CF" />
+                <path d={glyphPath} fill="#171717" />
               </svg>
             </div>
 
-            <div className="h-16 w-0.5 border-l-2 border-dashed border-cyan-500/50" aria-hidden="true" />
+            <div className="h-16 w-0.5 border-l-2 border-dashed border-vermilion" aria-hidden="true" />
 
             {/* Right Shape: horizontally mirrored if symmetric, same orientation if not */}
             <div
-              className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center shadow-inner"
+              className="w-20 h-20 sm:w-24 sm:h-24 bg-surface rounded-xl border border-hairline flex items-center justify-center"
               style={{ transform: isSymmetric ? 'scaleX(-1)' : 'none' }}
             >
               <svg width="48" height="48" viewBox="0 0 44 44" aria-hidden="true">
-                <path d={glyphPath} fill="#20B8CF" />
+                <path d={glyphPath} fill="#171717" />
               </svg>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleSymmetryAnswer(true)}
-              className="px-6 py-3 rounded-xl font-bold text-base sm:text-lg bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg active:scale-95 transition-all cursor-pointer"
+              className="px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-ink hover:bg-ink/90 text-surface active:scale-[0.98] transition-all cursor-pointer"
             >
               Mirror Image
             </button>
             <button
               type="button"
               onClick={() => handleSymmetryAnswer(false)}
-              className="px-6 py-3 rounded-xl font-bold text-base sm:text-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition-all cursor-pointer"
+              className="px-6 py-3 rounded-xl font-semibold text-sm sm:text-base bg-surface hover:bg-recessed text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
             >
               Not Mirrored
             </button>
@@ -201,7 +207,7 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       )}
 
       {(phase === 'recall' || phase === 'feedback') && (
-        <div className="flex flex-col items-center gap-6 p-4 sm:p-6 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+        <div className="flex flex-col items-center gap-6 p-4 sm:p-6 bg-paper rounded-xl border border-hairline">
           <div
             className="grid gap-2 select-none"
             style={{ gridTemplateColumns: `repeat(${n}, minmax(44px, 54px))` }}
@@ -210,14 +216,14 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
               const isSelected = chosenCells.has(i);
               const wasLit = litCells.has(i);
 
-              let cellStyle = 'bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-cyan-400';
+              let cellStyle = 'bg-surface hover:bg-recessed border-hairline hover:border-ink';
               if (phase === 'recall' && isSelected) {
-                cellStyle = 'bg-cyan-500 border-cyan-300 shadow-md shadow-cyan-500/40 scale-105';
+                cellStyle = 'bg-ink border-ink scale-105';
               } else if (phase === 'feedback') {
                 if (wasLit) {
-                  cellStyle = 'bg-emerald-500 border-emerald-300 text-white scale-105 shadow-md shadow-emerald-500/40';
+                  cellStyle = 'bg-ink border-ink text-surface scale-105';
                 } else if (isSelected && !wasLit) {
-                  cellStyle = 'bg-rose-500 border-rose-300 text-white scale-95';
+                  cellStyle = 'bg-vermilion border-vermilion text-surface scale-95';
                 }
               }
 
@@ -230,8 +236,8 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
                   aria-label={`Grid cell ${i + 1}`}
                   className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl border-2 transition-all flex items-center justify-center cursor-pointer ${cellStyle}`}
                 >
-                  {phase === 'feedback' && wasLit && <span className="font-bold text-white text-base">✓</span>}
-                  {phase === 'feedback' && isSelected && !wasLit && <span className="font-bold text-white text-base">✗</span>}
+                  {phase === 'feedback' && wasLit && <span className="font-mono font-bold text-surface text-base">✓</span>}
+                  {phase === 'feedback' && isSelected && !wasLit && <span className="font-mono font-bold text-surface text-base">✗</span>}
                 </button>
               );
             })}
@@ -241,9 +247,9 @@ export const GridChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             <button
               type="button"
               onClick={handleRecallSubmit}
-              className="px-8 py-3 rounded-xl font-bold text-base sm:text-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+              className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer font-mono"
             >
-              Recall ({chosenCells.size} / {k})
+              Submit Recall ({chosenCells.size} / {k})
             </button>
           )}
         </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameMetadata } from '../types';
-import { Play, ArrowLeft, Clock, Lightbulb } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Clock, Compass } from 'lucide-react';
 
 interface InstructionsModalProps {
   game: GameMetadata;
@@ -12,89 +12,103 @@ export const InstructionsModal: React.FC<InstructionsModalProps> = ({ game, onSt
   const [selectedDuration, setSelectedDuration] = useState<number>(game.durationSeconds || 360);
 
   const durationOptions = [
-    { label: '6 Minutes (Standard)', value: 360 },
-    { label: '3 Minutes (Sprint)', value: 180 },
-    { label: '10 Minutes (Deep Dive)', value: 600 },
+    { label: '3 Minutes', tag: 'Sprint', value: 180 },
+    { label: '6 Minutes', tag: 'Standard', value: 360 },
+    { label: '10 Minutes', tag: 'Deep Focus', value: 600 },
   ];
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl mx-auto py-2 animate-fade-in">
+    <div className="flex flex-col gap-7 max-w-2xl mx-auto py-2 animate-fade-in">
       {/* Header */}
-      <div>
-        <span className="text-xs uppercase font-extrabold tracking-wider text-cyan-400">
+      <div className="flex flex-col gap-2">
+        <span className="font-mono text-[11px] uppercase font-medium tracking-[0.12em] text-vermilion">
           {game.ability}
         </span>
-        <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-3 mt-1">
-          <span className="text-3xl">{game.icon}</span>
-          <span>{game.name}</span>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight">
+          {game.name}
         </h2>
-        <p className="text-slate-300 text-sm sm:text-base mt-2 leading-relaxed">{game.short}</p>
+        <p className="text-ink-secondary text-sm sm:text-base leading-relaxed">{game.short}</p>
       </div>
 
-      {/* Step by Step Guide */}
-      <div className="flex flex-col gap-3 p-5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
-        <h3 className="text-xs uppercase tracking-wider text-slate-400 font-bold">How to Play</h3>
+      {/* Step-by-Step Rules */}
+      <div className="flex flex-col gap-4 p-6 rounded-2xl bg-surface border border-hairline">
+        <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted font-medium">
+          How to Play
+        </h3>
         <div className="flex flex-col gap-3.5">
           {game.howto.map((step, idx) => (
-            <div key={idx} className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
-                {idx + 1}
+            <div key={idx} className="flex items-start gap-3.5">
+              <div className="w-6 h-6 rounded-md bg-recessed text-ink font-mono font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 tabular-nums">
+                {String(idx + 1).padStart(2, '0')}
               </div>
-              <p className="text-slate-200 text-sm leading-snug">{step}</p>
+              <p className="text-ink text-sm leading-relaxed">{step}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Pro Strategy Tip */}
+      {/* Strategy Tip */}
       {game.tips && (
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-xs sm:text-sm">
-          <Lightbulb className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3.5 p-5 rounded-2xl bg-vermilion-wash/70 border border-vermilion/20 text-ink text-sm">
+          <Compass className="w-5 h-5 text-vermilion shrink-0 mt-0.5" />
           <div>
-            <strong className="text-indigo-300 block font-semibold mb-0.5">Strategy Tip:</strong>
-            {game.tips}
+            <strong className="font-mono text-[11px] uppercase tracking-wider text-vermilion block mb-1">
+              Strategy Tip
+            </strong>
+            <span className="text-ink-secondary leading-relaxed">{game.tips}</span>
           </div>
         </div>
       )}
 
-      {/* Duration Selection */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-slate-400 font-bold">
-          <Clock className="w-3.5 h-3.5 text-cyan-400" />
+      {/* Duration Picker */}
+      <div className="flex flex-col gap-2.5">
+        <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted font-medium">
+          <Clock className="w-3.5 h-3.5 text-vermilion" />
           <span>Session Duration</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {durationOptions.map(opt => (
-            <button
-              type="button"
-              key={opt.value}
-              onClick={() => setSelectedDuration(opt.value)}
-              className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                selectedDuration === opt.value
-                  ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-md shadow-cyan-500/20'
-                  : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {durationOptions.map(opt => {
+            const active = selectedDuration === opt.value;
+            return (
+              <button
+                type="button"
+                key={opt.value}
+                onClick={() => setSelectedDuration(opt.value)}
+                className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
+                  active
+                    ? 'bg-ink border-ink text-surface'
+                    : 'bg-surface hover:bg-recessed border-hairline text-ink'
+                }`}
+              >
+                <div className="font-semibold text-sm">{opt.label}</div>
+                <div
+                  className={`font-mono text-[10px] uppercase tracking-wider mt-0.5 ${
+                    active ? 'text-surface/70' : 'text-ink-muted'
+                  }`}
+                >
+                  {opt.tag}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-4 pt-2">
+      {/* Actions */}
+      <div className="flex items-center gap-3 pt-2">
         <button
           type="button"
           onClick={() => onStart(selectedDuration)}
-          className="flex-1 py-3.5 px-6 rounded-xl font-bold text-base bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 py-3.5 px-6 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
-          <Play className="w-5 h-5 fill-slate-950" />
           <span>Start Game</span>
+          <ArrowRight className="w-4 h-4" />
         </button>
 
         <button
+          type="button"
           onClick={onBack}
-          className="py-3.5 px-5 rounded-xl font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+          className="py-3.5 px-5 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>

@@ -340,7 +340,7 @@ export const App: React.FC = () => {
   const anyModalOpen = isAuthOpen || isSettingsOpen || isSupabaseSetupOpen;
 
   return (
-    <div className="min-h-screen text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-paper text-ink flex flex-col font-sans selection:bg-vermilion-wash selection:text-ink">
       <FlashToast toast={toast} />
       <AchievementToast achievement={unlockedToast} onDismiss={handleDismissAchievementToast} />
 
@@ -353,8 +353,8 @@ export const App: React.FC = () => {
       />
       <SupabaseSetupModal isOpen={isSupabaseSetupOpen} onClose={() => setIsSupabaseSetupOpen(false)} />
 
-      <main className="max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1">
-        {/* Pro Header with Auth & Database status */}
+      <main className="max-w-6xl w-full mx-auto px-5 sm:px-8 lg:px-10 py-6 sm:py-9 flex-1 flex flex-col">
+        {/* Swiss Editorial Masthead */}
         <Header
           currentTab={currentTab}
           onSelectTab={handleSelectTab}
@@ -364,8 +364,8 @@ export const App: React.FC = () => {
           onOpenSupabaseSetup={() => setIsSupabaseSetupOpen(true)}
         />
 
-        {/* Main Panel Viewport */}
-        <div className="bg-slate-900/90 backdrop-blur-md rounded-3xl p-5 sm:p-8 border border-slate-800 shadow-2xl relative min-h-[500px]">
+        {/* Main Editorial Viewport */}
+        <div className="flex-1">
           {screen === 'hub' && (
             <ArenaHub
               currentTab={lastHubTab}
@@ -435,9 +435,10 @@ export const App: React.FC = () => {
           {screen === 'achievements' && <AchievementsView onBack={handleGoHome} />}
         </div>
 
-        {/* Footer info */}
-        <footer className="text-center text-xs text-slate-500 mt-6 leading-relaxed">
-          Gamefied Apti • Cloud-synced cognitive & aptitude game arena powered by Supabase with Row Level Security.
+        {/* Minimal Editorial Colophon */}
+        <footer className="mt-14 pt-6 border-t border-hairline flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ink-muted">
+          <span className="font-mono uppercase tracking-wider">Gamefied Apti — Editorial Edition</span>
+          <span>Cloud-synced with Supabase PostgreSQL &amp; Zero-Trust Row Level Security</span>
         </footer>
       </main>
     </div>

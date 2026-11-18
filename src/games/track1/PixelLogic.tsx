@@ -107,13 +107,13 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Deduce the pixel pattern to match every row and column clue:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Fill cells so every row and column matches its contiguous run clues:
         </p>
       </div>
 
       {/* Nonogram Grid */}
-      <div className="p-4 sm:p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-x-auto">
+      <div className="p-4 sm:p-5 bg-paper rounded-xl border border-hairline overflow-x-auto max-w-full">
         <div
           className="grid gap-1 sm:gap-1.5 items-center justify-center select-none"
           style={{
@@ -121,7 +121,7 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
           }}
         >
           {/* Top-left empty corner */}
-          <div className="w-full min-h-12 py-1 flex items-center justify-center text-xs text-slate-500 font-bold border-b border-r border-slate-700/60">
+          <div className="w-full min-h-12 py-1 flex items-center justify-center font-mono text-[10px] tracking-wider text-ink-muted font-bold border-b border-r border-hairline">
             CLUES
           </div>
 
@@ -129,7 +129,7 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
           {puzzle.colClues.map((clue, cIdx) => (
             <div
               key={cIdx}
-              className="min-h-12 py-1 flex flex-col items-center justify-end text-xs font-mono font-bold text-cyan-300 border-b border-slate-700/60 leading-tight"
+              className="min-h-12 py-1 flex flex-col items-center justify-end text-xs font-mono font-bold text-ink border-b border-hairline leading-tight"
             >
               {clue.map((num, i) => (
                 <span key={i}>{num}</span>
@@ -141,7 +141,7 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
           {grid.map((row, rIdx) => (
             <React.Fragment key={rIdx}>
               {/* Row Clue */}
-              <div className="h-10 sm:h-12 flex items-center justify-end pr-2 text-xs font-mono font-bold text-cyan-300 border-r border-slate-700/60 tracking-wider">
+              <div className="h-10 sm:h-12 flex items-center justify-end pr-2.5 text-xs font-mono font-bold text-ink border-r border-hairline tracking-wider">
                 {puzzle.rowClues[rIdx].join(' ')}
               </div>
 
@@ -152,13 +152,15 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
                   <button
                     key={cIdx}
                     onClick={() => toggleCell(rIdx, cIdx)}
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 transition-all duration-100 flex items-center justify-center cursor-pointer active:scale-95 ${
+                    aria-pressed={isFilled}
+                    aria-label={`Row ${rIdx + 1} column ${cIdx + 1}`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg border transition-all duration-100 flex items-center justify-center cursor-pointer active:scale-95 ${
                       isFilled
-                        ? 'bg-gradient-to-br from-cyan-400 to-teal-500 border-cyan-300 shadow-md shadow-cyan-500/30'
-                        : 'bg-slate-800 hover:bg-slate-700 border-slate-700 hover:border-cyan-500/50'
+                        ? 'bg-ink border-ink'
+                        : 'bg-surface hover:bg-recessed border-hairline hover:border-ink'
                     }`}
                   >
-                    {isFilled && <div className="w-2.5 h-2.5 rounded-full bg-slate-950" />}
+                    {isFilled && <div className="w-2 h-2 rounded-full bg-vermilion" />}
                   </button>
                 );
               })}
@@ -168,16 +170,16 @@ export const PixelLogic: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={handleCheck}
-          className="px-8 py-3 rounded-xl font-bold text-base sm:text-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
         >
           Check Solution
         </button>
         <button
           onClick={handleClear}
-          className="px-5 py-3 rounded-xl font-semibold text-slate-300 bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-95 transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all cursor-pointer"
         >
           Reset Grid
         </button>

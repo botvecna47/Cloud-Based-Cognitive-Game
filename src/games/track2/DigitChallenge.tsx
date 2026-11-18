@@ -173,16 +173,16 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Place digits into the slots to make the equation true:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Place digits into the slots to balance the equation:
         </p>
-        <p className="text-xs text-slate-400 mt-1">
-          Operations are evaluated left to right. Each bank digit is used once.
+        <p className="text-xs text-ink-muted mt-1">
+          Evaluated strictly left to right. Each bank digit may be used once.
         </p>
       </div>
 
       {/* Equation Layout */}
-      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-5 bg-paper rounded-xl border border-hairline w-full">
         {Array.from({ length: puzzle.terms }).map((_, i) => {
           const chipId = slotAssignments[i];
           const chip = puzzle.bank.find(c => c.id === chipId);
@@ -193,12 +193,12 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
               {/* Left slot */}
               <button
                 onClick={() => handleSlotClick(i)}
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-extrabold flex items-center justify-center transition-all cursor-pointer select-none ${
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold flex items-center justify-center transition-all cursor-pointer select-none ${
                   chip
-                    ? 'bg-gradient-to-br from-cyan-500 to-teal-500 text-slate-950 shadow-md font-black'
+                    ? 'bg-ink text-surface border-2 border-ink'
                     : isSlotActive
-                    ? 'bg-cyan-950/60 border-2 border-cyan-400 ring-4 ring-cyan-400/30'
-                    : 'bg-slate-800/90 border-2 border-dashed border-slate-600 hover:border-cyan-400 text-slate-500'
+                    ? 'bg-vermilion-wash border-2 border-vermilion text-vermilion'
+                    : 'bg-surface border-2 border-dashed border-hairline hover:border-ink text-ink-muted'
                 }`}
               >
                 {chip ? chip.digit : ''}
@@ -206,7 +206,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               {/* Operator */}
               {i < puzzle.usedOps.length && (
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-slate-300 px-1">
+                <span className="font-mono text-2xl sm:text-3xl font-bold text-ink-secondary px-1">
                   {puzzle.usedOps[i] === '*' ? '×' : puzzle.usedOps[i]}
                 </span>
               )}
@@ -215,7 +215,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
         })}
 
         {/* Equals Sign */}
-        <span className="font-mono text-2xl sm:text-3xl font-bold text-cyan-400 px-1">=</span>
+        <span className="font-mono text-2xl sm:text-3xl font-bold text-vermilion px-1">=</span>
 
         {/* RHS Slot */}
         {(() => {
@@ -227,12 +227,12 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           return (
             <button
               onClick={() => handleSlotClick(rhsIndex)}
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-extrabold flex items-center justify-center transition-all cursor-pointer select-none ${
+              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold flex items-center justify-center transition-all cursor-pointer select-none ${
                 rhsChip
-                  ? 'bg-gradient-to-br from-cyan-500 to-teal-500 text-slate-950 shadow-md font-black'
+                  ? 'bg-ink text-surface border-2 border-ink'
                   : isRhsActive
-                  ? 'bg-cyan-950/60 border-2 border-cyan-400 ring-4 ring-cyan-400/30'
-                  : 'bg-slate-800/90 border-2 border-dashed border-slate-600 hover:border-cyan-400 text-slate-500'
+                  ? 'bg-vermilion-wash border-2 border-vermilion text-vermilion'
+                  : 'bg-surface border-2 border-dashed border-hairline hover:border-ink text-ink-muted'
               }`}
             >
               {rhsChip ? rhsChip.digit : ''}
@@ -243,8 +243,10 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
 
       {/* Digits Bank */}
       <div className="flex flex-col items-center gap-2 w-full">
-        <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Available Digits</span>
-        <div className="flex flex-wrap justify-center gap-3 p-4 bg-slate-900/60 rounded-2xl border border-slate-800 shadow-md">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-muted font-bold">
+          Available Digits
+        </span>
+        <div className="flex flex-wrap justify-center gap-2.5 p-4 bg-paper rounded-xl border border-hairline">
           {puzzle.bank.map(chip => {
             const isUsed = usedChipIds.has(chip.id);
             const isSelected = selectedChipId === chip.id;
@@ -254,12 +256,12 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
                 key={chip.id}
                 disabled={isUsed}
                 onClick={() => handleChipClick(chip.id)}
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-mono text-2xl font-black transition-all select-none cursor-pointer ${
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-mono text-2xl font-bold transition-all select-none border ${
                   isUsed
-                    ? 'bg-slate-900/50 text-slate-600 border border-slate-800 cursor-not-allowed opacity-40 scale-95'
+                    ? 'bg-recessed text-ink-muted/50 border-hairline cursor-not-allowed opacity-50'
                     : isSelected
-                    ? 'bg-cyan-400 text-slate-950 ring-4 ring-cyan-400/50 scale-105 shadow-md shadow-cyan-400/40'
-                    : 'bg-slate-800 hover:bg-slate-700 text-white border-2 border-slate-700 hover:border-cyan-400 active:scale-95 shadow'
+                    ? 'bg-vermilion text-surface border-vermilion -translate-y-0.5 cursor-pointer'
+                    : 'bg-surface hover:bg-recessed text-ink border-hairline hover:border-ink active:scale-95 cursor-pointer'
                 }`}
               >
                 {chip.digit}
@@ -270,10 +272,10 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Buttons */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <button
           onClick={handleCheck}
-          className="px-8 py-3 rounded-xl font-bold text-base sm:text-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
         >
           Check Equation
         </button>
@@ -282,7 +284,7 @@ export const DigitChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             sound.playWrong();
             api.wrong();
           }}
-          className="px-5 py-3 rounded-xl font-semibold text-slate-400 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700 active:scale-95 transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink-secondary bg-surface hover:bg-recessed hover:text-ink border border-hairline active:scale-[0.98] transition-all cursor-pointer"
         >
           Skip
         </button>

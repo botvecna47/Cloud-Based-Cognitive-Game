@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { isSupabaseConfigured } from '../services/supabase';
-import { Lock, Mail, User, ShieldCheck, Database, X, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, Mail, User, ShieldCheck, Database, X, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 interface AuthModalProps {
@@ -11,7 +11,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'signin' }) => {
-  const { signIn, signUp, loginAsGuest, authError, clearAuthError, isSupabaseOnline, connectionStatusMessage } = useAuth();
+  const { signIn, signUp, loginAsGuest, authError, clearAuthError, isSupabaseOnline } = useAuth();
   const [tab, setTab] = useState<'signin' | 'signup'>(defaultTab);
 
   const [email, setEmail] = useState('');
@@ -90,68 +90,59 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
       role="dialog"
       aria-modal="true"
       aria-label="Account Sign In"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-md p-6 sm:p-8 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
-        {/* Glow accent */}
-        <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
+      <div className="relative w-full max-w-md p-6 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}
           aria-label="Close authentication modal"
-          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 mb-3 shadow-lg shadow-cyan-500/10">
-            <ShieldCheck className="w-6 h-6 text-cyan-400" />
+        <div className="mb-6 pr-8">
+          <div className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-vermilion mb-2">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>PLAYER AUTHENTICATION</span>
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">
-            {tab === 'signin' ? 'Welcome Back' : 'Create Player Account'}
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+            {tab === 'signin' ? 'Welcome back' : 'Create player account'}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Cloud progress & leaderboards powered by Supabase with Row Level Security.
+          <p className="text-xs text-ink-secondary mt-1.5 leading-relaxed">
+            Sync cognitive history and global leaderboard ranks securely via Supabase with Row Level Security.
           </p>
 
-          {/* Cloud Database Connection Indicator (single clean pill) */}
-          <div
-            className={`mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border ${
-              isSupabaseConfigured && isSupabaseOnline
-                ? 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30'
-                : 'text-amber-300 bg-amber-950/40 border-amber-500/30'
-            }`}
-          >
+          {/* Cloud Database Connection Indicator */}
+          <div className="mt-3.5 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-hairline bg-paper font-mono text-[11px] font-medium text-ink">
             {isSupabaseConfigured && isSupabaseOnline ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Supabase Cloud Online</span>
+                <span className="w-2 h-2 rounded-full bg-vermilion" />
+                <span>CLOUD SYNC ONLINE</span>
               </>
             ) : (
               <>
-                <Database className="w-3 h-3 text-amber-400" />
-                <span>Sandbox Mode (Local Storage)</span>
+                <Database className="w-3 h-3 text-ink-muted" />
+                <span>LOCAL SANDBOX MODE</span>
               </>
             )}
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex p-1 mb-5 bg-slate-800/80 rounded-xl border border-slate-700/80">
+        <div className="flex p-1 mb-5 bg-recessed rounded-xl border border-hairline">
           <button
             type="button"
             onClick={() => {
               setTab('signin');
               setFormError(null);
             }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
               tab === 'signin'
-                ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-surface shadow-sm'
+                : 'text-ink-secondary hover:text-ink'
             }`}
           >
             Sign In
@@ -162,10 +153,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
               setTab('signup');
               setFormError(null);
             }}
-            className={`flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
               tab === 'signup'
-                ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-ink text-surface shadow-sm'
+                : 'text-ink-secondary hover:text-ink'
             }`}
           >
             Create Account
@@ -174,7 +165,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
 
         {/* Errors */}
         {(formError || authError) && (
-          <div className="flex items-start gap-2 p-3 mb-4 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs">
+          <div className="flex items-start gap-2.5 p-3 mb-4 rounded-xl bg-vermilion-wash border border-vermilion/30 text-vermilion text-xs font-medium">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{formError || authError}</span>
           </div>
@@ -184,11 +175,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
         <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           {tab === 'signup' && (
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block font-mono text-[11px] font-bold text-ink-secondary uppercase tracking-wider mb-1.5">
                 Player Username
               </label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
                 <input
                   type="text"
                   required
@@ -199,36 +190,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
                   placeholder="e.g. Brainiac42"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-800/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 bg-paper border border-hairline rounded-xl text-ink placeholder-ink-muted text-sm focus:outline-none focus:border-ink transition-colors"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label className="block font-mono text-[11px] font-bold text-ink-secondary uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
               <input
                 type="email"
                 required
                 maxLength={128}
-                placeholder="cadet@example.com"
+                placeholder="player@example.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-800/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition-colors"
+                className="w-full pl-10 pr-4 py-2.5 bg-paper border border-hairline rounded-xl text-ink placeholder-ink-muted text-sm focus:outline-none focus:border-ink transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label className="block font-mono text-[11px] font-bold text-ink-secondary uppercase tracking-wider mb-1.5">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
               <input
                 type="password"
                 required
@@ -237,7 +228,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
                 placeholder="••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-800/90 border border-slate-700 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400 transition-colors"
+                className="w-full pl-10 pr-4 py-2.5 bg-paper border border-hairline rounded-xl text-ink placeholder-ink-muted text-sm focus:outline-none focus:border-ink transition-colors"
               />
             </div>
           </div>
@@ -245,25 +236,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-2 py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full mt-2 py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {isSubmitting ? (
-              <span className="animate-spin text-lg">⏳</span>
+              <span className="font-mono text-xs uppercase tracking-wider">Authenticating...</span>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 fill-slate-950" />
-                <span>{tab === 'signin' ? 'Sign In to Arena' : 'Initialize Account'}</span>
+                <span>{tab === 'signin' ? 'Sign In to Arena' : 'Create Account'}</span>
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
         {/* Divider */}
-        <div className="relative my-4 text-center">
+        <div className="relative my-5 text-center">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-800" />
+            <div className="w-full border-t border-hairline" />
           </div>
-          <span className="relative px-3 bg-slate-900 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+          <span className="relative px-3 bg-surface text-ink-muted font-mono text-[10px] uppercase tracking-[0.14em] font-bold">
             Or Play Instantly
           </span>
         </div>
@@ -273,9 +264,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
           <button
             type="button"
             onClick={handleGuestLogin}
-            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-slate-300 bg-slate-800 hover:bg-slate-700/80 hover:text-white border border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-ink bg-paper hover:bg-recessed border border-hairline transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
-            <User className="w-3.5 h-3.5 text-cyan-400" />
+            <User className="w-3.5 h-3.5 text-ink-secondary" />
             <span>Continue as Guest Player</span>
           </button>
 
@@ -283,9 +274,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTa
             <button
               type="button"
               onClick={handleDemoLogin}
-              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-indigo-300 bg-indigo-950/40 hover:bg-indigo-900/50 border border-indigo-500/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-ink bg-recessed hover:bg-hairline/70 border border-hairline transition-colors cursor-pointer flex items-center justify-center gap-2"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-vermilion" />
               <span>One-Click Demo Account</span>
             </button>
           )}

@@ -29,7 +29,7 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
 
     // Playback sequence after slight initial pause
     let delay = 600;
-    seq.forEach((padIndex, idx) => {
+    seq.forEach(padIndex => {
       const tOn = window.setTimeout(() => {
         setActivePad(padIndex);
         sound.playSignalTone(padIndex);
@@ -81,38 +81,41 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
         {phase === 'watch' ? (
-          <div className="inline-flex items-center gap-2 text-cyan-300 bg-cyan-950/50 px-5 py-2 rounded-full border border-cyan-500/30 text-lg font-medium animate-pulse">
-            <span>👁️</span>
+          <div className="inline-flex items-center gap-2.5 text-ink bg-recessed px-5 py-2 rounded-full border border-hairline text-sm sm:text-base font-medium">
+            <span className="w-2 h-2 rounded-full bg-vermilion animate-pulse" />
             <span>
-              Watch the sequence of <strong className="text-white font-bold">{seqLength}</strong> signals...
+              Watch sequence of <strong className="font-mono font-bold text-ink">{seqLength}</strong> signals
             </span>
           </div>
         ) : (
-          <div className="inline-flex items-center gap-2 text-emerald-300 bg-emerald-950/50 px-5 py-2 rounded-full border border-emerald-500/30 text-lg font-medium">
-            <span>✨</span>
+          <div className="inline-flex items-center gap-2.5 text-surface bg-ink px-5 py-2 rounded-full text-sm sm:text-base font-medium">
+            <span className="w-2 h-2 rounded-full bg-vermilion" />
             <span>
-              Repeat the sequence! (<strong className="text-white font-bold">{userStep}</strong> / {seqLength})
+              Repeat sequence{' '}
+              <strong className="font-mono font-bold text-vermilion">
+                {userStep} / {seqLength}
+              </strong>
             </span>
           </div>
         )}
       </div>
 
       {/* Progress Dots */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         {sequence.map((_, i) => (
           <div
             key={i}
-            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-150 ${
               phase === 'repeat' && i < userStep
-                ? 'bg-emerald-400 scale-110 shadow-sm shadow-emerald-400/50'
-                : 'bg-slate-700/60'
+                ? 'bg-vermilion scale-110'
+                : 'bg-hairline'
             }`}
           />
         ))}
       </div>
 
       {/* 6 Signal Pads */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4 p-5 bg-slate-900/60 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-3.5 p-5 bg-paper rounded-xl border border-hairline">
         {Array.from({ length: numPads }).map((_, index) => {
           const isFlashing = activePad === index;
           return (
@@ -120,12 +123,12 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
               key={index}
               disabled={phase === 'watch'}
               onClick={() => handlePadClick(index)}
-              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 transition-all duration-150 flex items-center justify-center font-mono font-black text-xl select-none cursor-pointer ${
+              className={`w-16 h-16 sm:w-20 sm:h-20 rounded-xl border-2 transition-all duration-150 flex items-center justify-center font-mono font-bold text-xl select-none ${
                 isFlashing
-                  ? 'bg-gradient-to-br from-cyan-300 to-cyan-500 border-white text-slate-950 scale-110 shadow-lg shadow-cyan-400/50 ring-4 ring-cyan-400/40'
+                  ? 'bg-vermilion border-ink text-surface scale-105 ring-2 ring-ink/30'
                   : phase === 'watch'
-                  ? 'bg-slate-800/60 border-slate-700/60 text-slate-500 cursor-not-allowed opacity-80'
-                  : 'bg-slate-800 hover:bg-slate-700/90 border-slate-600 hover:border-cyan-400 text-slate-300 active:scale-95 shadow-md'
+                  ? 'bg-recessed border-hairline text-ink-muted cursor-not-allowed'
+                  : 'bg-surface hover:bg-recessed border-hairline hover:border-ink text-ink active:scale-95 cursor-pointer'
               }`}
             >
               {index + 1}
@@ -134,11 +137,11 @@ export const SignalSequence: React.FC<{ api: GameAPI }> = ({ api }) => {
         })}
       </div>
 
-      <div className="text-slate-400 text-xs sm:text-sm text-center">
+      <p className="text-ink-muted text-xs sm:text-sm text-center">
         {phase === 'watch'
-          ? 'Memorize the order in which the pads light up.'
-          : 'Click the pads in the exact same sequence you just observed.'}
-      </div>
+          ? 'Observe and memorize the exact order in which each pad activates.'
+          : 'Tap the pads in the same sequence you observed.'}
+      </p>
     </div>
   );
 };

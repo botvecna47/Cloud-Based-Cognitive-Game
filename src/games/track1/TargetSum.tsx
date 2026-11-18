@@ -81,47 +81,65 @@ export const TargetSum: React.FC<{ api: GameAPI }> = ({ api }) => {
     setSelectedIds(new Set());
   };
 
-  const isMatching = currentTotal === puzzle.target;
+  const isMatching = currentTotal === puzzle.target && selectedIds.size > 0;
   const isOver = currentTotal > puzzle.target;
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Select numbers that add up to{' '}
-          <span className="inline-block px-3 py-1 bg-cyan-500/20 text-cyan-300 font-bold rounded-lg border border-cyan-400/30 text-2xl mx-1 shadow-sm">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-muted font-bold mb-2">
+          TARGET EQUATION
+        </p>
+        <p className="text-ink text-base sm:text-lg font-medium flex items-center justify-center flex-wrap gap-2">
+          <span>Select tiles that sum exactly to</span>
+          <span className="inline-flex items-center justify-center px-3.5 py-1 bg-ink text-surface font-mono font-bold rounded-lg text-2xl sm:text-3xl tracking-tight">
             {puzzle.target}
           </span>
         </p>
-        <div className="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 shadow-inner">
-          <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">Current Sum:</span>
+
+        <div
+          className={`mt-4 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border transition-colors ${
+            isMatching
+              ? 'bg-ink text-surface border-ink'
+              : isOver
+              ? 'bg-vermilion-wash text-vermilion border-vermilion/40'
+              : 'bg-paper text-ink border-hairline'
+          }`}
+        >
           <span
-            className={`font-mono text-xl font-extrabold transition-colors duration-200 ${
-              isMatching
-                ? 'text-emerald-400 animate-pulse'
-                : isOver
-                ? 'text-rose-400'
-                : 'text-cyan-400'
+            className={`font-mono text-[11px] uppercase tracking-wider font-bold ${
+              isMatching ? 'text-surface/75' : isOver ? 'text-vermilion' : 'text-ink-muted'
             }`}
           >
-            {currentTotal}
+            Current Sum
           </span>
-          {isMatching && <span className="text-emerald-400 text-xs font-bold">✓ Target Matched</span>}
+          <span className="font-mono text-xl font-bold tabular-nums">{currentTotal}</span>
+          {isMatching && (
+            <span className="font-mono text-[11px] uppercase tracking-wider font-bold text-vermilion">
+              ✓ Matched
+            </span>
+          )}
+          {isOver && (
+            <span className="font-mono text-[11px] uppercase tracking-wider font-bold">
+              Over
+            </span>
+          )}
         </div>
       </div>
 
       {/* Number Chips */}
-      <div className="flex flex-wrap justify-center gap-3 p-4 bg-slate-900/60 rounded-2xl border border-slate-800 shadow-lg w-full">
+      <div className="flex flex-wrap justify-center gap-3 p-5 bg-paper rounded-xl border border-hairline w-full">
         {puzzle.tiles.map(tile => {
           const isSelected = selectedIds.has(tile.id);
           return (
             <button
               key={tile.id}
               onClick={() => toggleTile(tile.id)}
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-extrabold transition-all duration-150 transform active:scale-95 flex items-center justify-center cursor-pointer select-none shadow-md ${
+              aria-pressed={isSelected}
+              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl font-mono text-2xl sm:text-3xl font-bold transition-all duration-150 active:scale-95 flex items-center justify-center cursor-pointer select-none border ${
                 isSelected
-                  ? 'bg-gradient-to-br from-cyan-400 to-cyan-600 text-slate-950 ring-4 ring-cyan-400/40 scale-105 shadow-cyan-500/25'
-                  : 'bg-slate-800/90 hover:bg-slate-700 text-white border-2 border-slate-700 hover:border-cyan-500/60'
+                  ? 'bg-ink text-surface border-ink ring-2 ring-vermilion/60 -translate-y-0.5 shadow-sm'
+                  : 'bg-surface hover:bg-recessed text-ink border-hairline hover:border-ink'
               }`}
             >
               {tile.val}
@@ -131,18 +149,18 @@ export const TargetSum: React.FC<{ api: GameAPI }> = ({ api }) => {
       </div>
 
       {/* Control Buttons */}
-      <div className="flex items-center gap-4 mt-2">
+      <div className="flex items-center gap-3 mt-1">
         <button
           onClick={handleCheck}
-          className="px-8 py-3 rounded-xl font-bold text-base sm:text-lg bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer"
+          className="px-7 py-3 rounded-xl font-semibold text-sm sm:text-base bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all cursor-pointer"
         >
           Check Sum
         </button>
         <button
           onClick={handleClear}
-          className="px-6 py-3 rounded-xl font-semibold text-slate-300 bg-slate-800/90 hover:bg-slate-700 hover:text-white border border-slate-700 active:scale-95 transition-all cursor-pointer"
+          className="px-5 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all cursor-pointer"
         >
-          Clear Selection
+          Clear
         </button>
       </div>
     </div>

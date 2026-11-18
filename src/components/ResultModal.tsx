@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { GameMetadata, GameResult } from '../types';
-import { Trophy, RotateCcw, Home, ArrowRight, CheckCircle2, Sparkles, Award } from 'lucide-react';
+import { RotateCcw, Home, ArrowRight, CheckCircle2, Award } from 'lucide-react';
 import { fireCelebration } from '../utils/confetti';
 import { sound } from '../utils/sound';
 import { useAuth } from '../context/AuthContext';
@@ -35,110 +35,101 @@ export const ResultModal: React.FC<ResultModalProps> = ({
     }
   }, [result]);
 
-  const bandColors = {
-    Excellent: 'text-emerald-400 bg-emerald-950/60 border-emerald-500/40',
-    Strong: 'text-cyan-400 bg-cyan-950/60 border-cyan-500/40',
-    Fair: 'text-amber-400 bg-amber-950/60 border-amber-500/40',
-    'Keep practising': 'text-slate-400 bg-slate-800/80 border-slate-700',
-  };
-
   return (
-    <div className="flex flex-col gap-6 max-w-xl mx-auto py-2 animate-fade-in text-center">
-      {/* Title */}
-      <div className="flex flex-col items-center">
-        <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 flex items-center justify-center text-3xl mb-3 shadow-lg shadow-cyan-500/10">
-          <Trophy className="w-8 h-8 text-cyan-400" />
-        </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-white">
-          {game.name}: Round Complete!
+    <div className="flex flex-col gap-7 max-w-2xl mx-auto py-4 animate-fade-in">
+      {/* Header */}
+      <div className="flex flex-col items-center text-center gap-2">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-vermilion font-medium">
+          Round Complete
+        </span>
+        <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight">
+          {game.name}
         </h2>
-        <div className="flex items-center gap-2 mt-2 flex-wrap justify-center">
-          <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-400/30 shadow-sm">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{savedToCloud ? 'Telemetry Saved to Supabase Cloud' : 'Telemetry Saved Locally (Sandbox)'}</span>
+        <div className="flex items-center gap-2.5 mt-1 flex-wrap justify-center">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface text-ink-secondary font-mono text-[11px] border border-hairline">
+            <CheckCircle2 className="w-3.5 h-3.5 text-ink" />
+            <span>{savedToCloud ? 'Synced to Supabase Cloud' : 'Saved Locally (Sandbox)'}</span>
           </span>
           {result.xpEarned != null && result.xpEarned > 0 && (
-            <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/30 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>+{result.xpEarned} XP Earned</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-vermilion-wash text-vermilion font-mono font-bold text-[11px] tabular-nums">
+              +{result.xpEarned.toLocaleString()} XP Earned
             </span>
           )}
         </div>
-        <p className="text-slate-400 text-sm mt-1.5">Here is your cognitive performance report:</p>
       </div>
 
-      {/* Main Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {/* Performance Index (Track 1) or Total Score (Track 2) */}
+      {/* Main Stats Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {result.performanceIndex != null ? (
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center">
-            <div className="text-4xl font-black text-cyan-400 font-mono">
-              {result.performanceIndex}
-              <span className="text-base text-slate-500 font-normal"> /100</span>
-            </div>
-            <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold mt-1">
+          <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
               Performance Index
             </span>
+            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+              {result.performanceIndex}
+              <span className="text-sm text-ink-muted font-normal">/100</span>
+            </div>
             {result.performanceBand && (
-              <span
-                className={`text-xs px-2.5 py-0.5 rounded-full font-bold border mt-2 ${
-                  bandColors[result.performanceBand]
-                }`}
-              >
+              <span className="mt-2 font-mono text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-vermilion-wash text-vermilion font-semibold">
                 {result.performanceBand}
               </span>
             )}
           </div>
         ) : (
-          <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center">
-            <div className="text-4xl font-black text-emerald-400 font-mono">{result.score}</div>
-            <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold mt-1">
-              Total Points
+          <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
+              Total Score
             </span>
+            <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+              {result.score.toLocaleString()}
+            </div>
+            <span className="mt-2 font-mono text-[11px] text-ink-muted">POINTS</span>
           </div>
         )}
 
-        {/* Levels Cleared */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center">
-          <div className="text-4xl font-black text-white font-mono">{result.level}</div>
-          <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold mt-1">
+        <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
             Levels Cleared
           </span>
-          <span className="text-xs text-slate-500 mt-2 font-mono">
-            {result.correct} of {result.attempts} correct
+          <div className="font-mono text-4xl font-bold text-ink tabular-nums mt-2">
+            {result.level}
+          </div>
+          <span className="mt-2 font-mono text-[11px] text-ink-muted tabular-nums">
+            {result.correct} / {result.attempts} correct
           </span>
         </div>
 
-        {/* Accuracy */}
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col items-center justify-center">
-          <div className="text-4xl font-black text-cyan-300 font-mono">{result.accuracy}%</div>
-          <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold mt-1">
+        <div className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col items-center text-center">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted">
             Accuracy
           </span>
-          <span className="text-xs text-slate-500 mt-2 font-mono">
-            Score: {result.score} pts
+          <div className="font-mono text-4xl font-bold text-vermilion tabular-nums mt-2">
+            {result.accuracy}%
+          </div>
+          <span className="mt-2 font-mono text-[11px] text-ink-muted tabular-nums">
+            {result.score.toLocaleString()} pts
           </span>
         </div>
       </div>
 
-      {/* Newly Unlocked Achievements in this round */}
+      {/* Newly Unlocked Achievements */}
       {result.newAchievements && result.newAchievements.length > 0 && (
-        <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-left animate-fade-in">
-          <div className="flex items-center gap-2 text-xs font-black text-amber-400 uppercase tracking-wider mb-2">
+        <div className="p-5 rounded-2xl bg-ink text-surface">
+          <div className="flex items-center gap-2 font-mono text-[11px] font-medium text-vermilion uppercase tracking-[0.12em] mb-3">
             <Award className="w-4 h-4" />
-            <span>Badge Unlocked This Round!</span>
+            <span>Badge Unlocked This Round</span>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             {result.newAchievements.map(ach => (
-              <div key={ach.id} className="flex items-center justify-between gap-3 bg-slate-900/80 p-2.5 rounded-xl border border-amber-500/30">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-2xl">{ach.icon}</span>
-                  <div>
-                    <div className="font-bold text-white text-xs">{ach.title}</div>
-                    <div className="text-[11px] text-slate-300">{ach.description}</div>
-                  </div>
+              <div
+                key={ach.id}
+                className="flex items-center justify-between gap-3 bg-surface/10 p-3 rounded-xl border border-surface/15"
+              >
+                <div>
+                  <div className="font-semibold text-surface text-sm">{ach.title}</div>
+                  <div className="text-xs text-surface/75 mt-0.5">{ach.description}</div>
                 </div>
-                <span className="text-xs font-mono font-bold text-amber-400 shrink-0">
+                <span className="font-mono text-xs font-bold text-vermilion shrink-0 tabular-nums">
                   +{ach.xpReward} XP
                 </span>
               </div>
@@ -147,40 +138,42 @@ export const ResultModal: React.FC<ResultModalProps> = ({
         </div>
       )}
 
-      {/* Explanatory Note */}
-      <div className="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-xl border border-slate-800/80 leading-relaxed text-left">
-        <strong>Performance Insight:</strong> Consistent accuracy paired with controlled speed maximizes
-        both your Performance Index and XP yield. Each level increases in complexity and rewards clean execution.
+      {/* Insight Note */}
+      <div className="text-xs text-ink-secondary bg-recessed/70 p-4 rounded-xl border border-hairline leading-relaxed">
+        <strong className="text-ink">Performance Insight:</strong> Consistent accuracy paired with controlled
+        speed maximizes both your Performance Index and XP yield. Each level increases in complexity and rewards
+        clean execution.
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-2">
-        {hasNextInQueue && (
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+        {hasNextInQueue ? (
           <button
+            type="button"
             onClick={onNextGame}
-            className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-7 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>Next Game: {nextGameName}</span>
-            <ArrowRight className="w-5 h-5" />
+            <span>Next Module: {nextGameName}</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
-        )}
-
-        {!hasNextInQueue && (
+        ) : (
           <button
+            type="button"
             onClick={onPlayAgain}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm sm:text-base bg-cyan-600 hover:bg-cyan-500 text-white shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Play This Game Again</span>
+            <span>Play Again</span>
           </button>
         )}
 
         <button
+          type="button"
           onClick={onHome}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm sm:text-base text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-sm text-ink bg-surface hover:bg-recessed border border-hairline active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <Home className="w-4 h-4" />
-          <span>Back to Arena Menu</span>
+          <span>Back to Arena</span>
         </button>
       </div>
     </div>

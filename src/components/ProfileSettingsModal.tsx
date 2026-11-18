@@ -80,44 +80,47 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Cadet Profile and Settings"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in"
+      aria-label="Player Profile and Settings"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50 backdrop-blur-sm animate-fade-in"
     >
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 sm:p-8 bg-surface border border-hairline rounded-2xl shadow-xl">
         <button
           onClick={onClose}
           aria-label="Close settings modal"
-          className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-recessed transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
         {/* Modal Title */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
-            <Sliders className="w-6 h-6 text-cyan-400" />
+        <div className="mb-6 pr-8">
+          <div className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-vermilion mb-1.5">
+            <Sliders className="w-3.5 h-3.5" />
+            <span>PROFILE & PREFERENCES</span>
           </div>
-          <div>
-            <h2 className="text-2xl font-black text-white">Player Profile & Settings</h2>
-            <p className="text-xs text-slate-400">Manage your avatar, username, and data backup</p>
-          </div>
+          <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+            Player Settings
+          </h2>
+          <p className="text-xs text-ink-secondary mt-1">
+            Customize your emblem, callsign, and export a local JSON archive of your rounds.
+          </p>
         </div>
 
         {/* Rank & XP Card */}
-        <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700/80 mb-6 flex items-center justify-between">
+        <div className="p-4 rounded-xl bg-paper border border-hairline mb-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-2xl shadow-md">
-              {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.icon || '🧠'}
+            <div className="w-12 h-12 rounded-xl bg-ink text-surface flex items-center justify-center font-mono text-xl font-bold">
+              {AVATAR_OPTIONS.find(a => a.id === selectedAvatar)?.icon || '◈'}
             </div>
             <div>
-              <div className="text-sm font-extrabold text-white flex items-center gap-2">
+              <div className="text-sm font-bold text-ink flex items-center gap-2 flex-wrap">
                 <span>{user.username}</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-vermilion-wash text-vermilion">
                   {user.rankTier} Tier
                 </span>
               </div>
-              <div className="text-xs text-slate-400 font-mono mt-0.5">
-                {user.totalXp.toLocaleString()} Total XP • {user.gamesPlayed} Rounds
+              <div className="text-xs text-ink-secondary font-mono mt-0.5">
+                {user.totalXp.toLocaleString()} XP · {user.gamesPlayed} Rounds
               </div>
             </div>
           </div>
@@ -128,7 +131,7 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
                 onClose();
                 onOpenAuth();
               }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-bold text-xs shadow cursor-pointer"
+              className="px-3.5 py-2 rounded-lg bg-vermilion hover:bg-vermilion-hover text-surface font-semibold text-xs transition-colors cursor-pointer"
             >
               Link Cloud Account
             </button>
@@ -138,10 +141,10 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
         <form onSubmit={handleSave} className="flex flex-col gap-5">
           {/* Avatar Picker */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-              Select Profile Avatar
+            <label className="block font-mono text-[11px] font-bold text-ink-secondary uppercase tracking-wider mb-2">
+              Select Profile Emblem
             </label>
-            <div className="grid grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-4 gap-2">
               {AVATAR_OPTIONS.map(avatar => {
                 const isSelected = selectedAvatar === avatar.id;
                 return (
@@ -152,14 +155,16 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
                       sound.playClick();
                       setSelectedAvatar(avatar.id);
                     }}
-                    className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
+                    className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-cyan-500/20 border-cyan-400 ring-2 ring-cyan-400/40 scale-105 shadow-md shadow-cyan-500/20'
-                        : 'bg-slate-800/80 border-slate-700 hover:bg-slate-700/80'
+                        ? 'bg-ink text-surface border-ink'
+                        : 'bg-paper text-ink border-hairline hover:bg-recessed'
                     }`}
                   >
-                    <span className="text-2xl">{avatar.icon}</span>
-                    <span className="text-[10px] font-semibold text-slate-300 truncate max-w-full">
+                    <span className={`font-mono text-xl font-bold ${isSelected ? 'text-vermilion' : 'text-ink'}`}>
+                      {avatar.icon}
+                    </span>
+                    <span className={`text-[10px] font-semibold truncate max-w-full ${isSelected ? 'text-surface' : 'text-ink-secondary'}`}>
                       {avatar.label}
                     </span>
                   </button>
@@ -170,11 +175,11 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
 
           {/* Username Input */}
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+            <label className="block font-mono text-[11px] font-bold text-ink-secondary uppercase tracking-wider mb-1.5">
               Callsign / Username
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
               <input
                 type="text"
                 required
@@ -184,7 +189,7 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
                 title="3 to 24 characters (letters, numbers, _, -, .)"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-cyan-400"
+                className="w-full pl-10 pr-4 py-2.5 bg-paper border border-hairline rounded-xl text-ink text-sm focus:outline-none focus:border-ink transition-colors"
               />
             </div>
           </div>
@@ -193,37 +198,37 @@ export const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({
           <button
             type="submit"
             disabled={isSaving}
-            className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-vermilion hover:bg-vermilion-hover text-surface active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {saveSuccess ? (
               <>
                 <Check className="w-4 h-4" />
-                <span>Profile Updated!</span>
+                <span>Profile Updated</span>
               </>
             ) : (
-              <span>Save Profile Changes</span>
+              <span>{isSaving ? 'Saving...' : 'Save Profile Changes'}</span>
             )}
           </button>
         </form>
 
         {/* Divider */}
-        <div className="my-6 border-t border-slate-800" />
+        <div className="my-6 border-t border-hairline" />
 
         {/* Actions */}
         <div className="flex flex-col gap-2.5">
           <button
             type="button"
             onClick={handleExportData}
-            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-slate-300 bg-slate-800 hover:bg-slate-700/80 hover:text-white border border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-ink bg-paper hover:bg-recessed border border-hairline transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
-            <Download className="w-4 h-4 text-cyan-400" />
+            <Download className="w-4 h-4 text-ink-secondary" />
             <span>Download Complete Game Records (JSON Backup)</span>
           </button>
 
           <button
             type="button"
             onClick={handleSignOut}
-            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-rose-400 hover:text-rose-300 bg-rose-950/30 hover:bg-rose-950/60 border border-rose-500/30 transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-vermilion bg-vermilion-wash hover:bg-vermilion hover:text-surface border border-vermilion/30 transition-colors cursor-pointer flex items-center justify-center gap-2"
           >
             <LogOut className="w-4 h-4" />
             <span>{user.isGuest ? 'Reset Guest Profile' : 'Sign Out of Account'}</span>

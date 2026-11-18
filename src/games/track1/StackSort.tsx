@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameAPI } from '../../types';
 import { sound } from '../../utils/sound';
 
-const DISK_COLORS = [
-  'from-blue-500 to-indigo-600',
-  'from-emerald-500 to-teal-600',
-  'from-amber-400 to-amber-600',
-  'from-purple-500 to-violet-600',
-  'from-rose-500 to-red-600',
-  'from-cyan-400 to-cyan-600',
+// Strict 3-color tonal palette (Vermilion & Charcoal Ink spectrum)
+const DISK_STYLES = [
+  'bg-vermilion text-surface border-vermilion-hover',
+  'bg-ink text-surface border-ink',
+  'bg-ink-secondary text-surface border-ink',
+  'bg-vermilion-hover text-surface border-ink',
+  'bg-ink-muted text-surface border-ink-secondary',
+  'bg-recessed text-ink border-ink',
 ];
 
 export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
@@ -65,7 +66,7 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
 
     if (diskToMove > topOfDest) {
       sound.playWrong();
-      setErrorMsg('Cannot place a larger disk on top of a smaller one!');
+      setErrorMsg('Cannot place a larger disk on top of a smaller one.');
       setSelectedPeg(null);
       return;
     }
@@ -101,30 +102,30 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Move all <strong className="text-cyan-300 font-bold">{numDisks}</strong> disks to the rightmost peg.
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Transfer all <strong className="font-mono font-bold text-vermilion">{numDisks}</strong> disks to the Target peg.
         </p>
-        <div className="flex items-center justify-center gap-4 mt-2">
-          <span className="text-sm text-slate-400">
-            Moves: <strong className="text-white font-mono text-base">{moves}</strong>
+        <div className="flex items-center justify-center gap-3 mt-2.5">
+          <span className="font-mono text-xs text-ink-secondary">
+            Moves: <strong className="text-ink text-sm tabular-nums">{moves}</strong>
           </span>
-          <span className="text-xs text-slate-500 bg-slate-800/80 px-2.5 py-1 rounded-md">
-            Optimal: {minMoves} moves
+          <span className="font-mono text-[11px] text-ink-muted bg-paper border border-hairline px-2.5 py-0.5 rounded-md">
+            Optimal: {minMoves}
           </span>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="text-xs sm:text-sm font-semibold text-rose-300 bg-rose-950/60 border border-rose-500/40 px-4 py-1.5 rounded-lg animate-shake">
+        <div className="text-xs sm:text-sm font-medium text-vermilion bg-vermilion-wash border border-vermilion/30 px-4 py-1.5 rounded-lg animate-shake">
           {errorMsg}
         </div>
       )}
 
       {/* Pegs Board */}
-      <div className="grid grid-cols-3 gap-4 sm:gap-6 w-full p-4 sm:p-6 bg-slate-900/70 rounded-2xl border border-slate-800 shadow-xl min-h-[260px] items-end">
+      <div className="grid grid-cols-3 gap-3 sm:gap-5 w-full p-4 sm:p-6 bg-paper rounded-xl border border-hairline min-h-[260px] items-end">
         {pegs.map((pegDisks, pegIdx) => {
           const isSelected = selectedPeg === pegIdx;
-          const label = pegIdx === 0 ? 'Start' : pegIdx === 1 ? 'Aux' : 'Target 🎯';
+          const label = pegIdx === 0 ? 'Start' : pegIdx === 1 ? 'Aux' : 'Target';
 
           return (
             <button
@@ -132,30 +133,30 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
               key={pegIdx}
               onClick={() => handlePegClick(pegIdx)}
               aria-label={`${label} peg with ${pegDisks.length} disks${isSelected ? ', selected' : ''}`}
-              className={`relative flex flex-col items-center justify-end h-56 rounded-xl cursor-pointer transition-all duration-150 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+              className={`relative flex flex-col items-center justify-end h-56 rounded-xl cursor-pointer transition-all duration-150 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-vermilion ${
                 isSelected
-                  ? 'bg-cyan-500/15 border-2 border-cyan-400 shadow-lg shadow-cyan-500/20'
-                  : 'hover:bg-slate-800/60 border-2 border-transparent'
+                  ? 'bg-vermilion-wash border-2 border-vermilion'
+                  : 'bg-surface/60 hover:bg-surface border-2 border-transparent hover:border-hairline'
               }`}
             >
               {/* Vertical Pole */}
               <div
-                className={`absolute bottom-3 w-3 rounded-t-full transition-colors ${
-                  isSelected ? 'bg-cyan-400' : 'bg-slate-700'
+                className={`absolute bottom-9 w-2.5 rounded-t-full transition-colors ${
+                  isSelected ? 'bg-vermilion' : 'bg-hairline'
                 }`}
-                style={{ height: '170px' }}
+                style={{ height: '164px' }}
               />
 
               {/* Stacked Disks */}
               <div className="relative z-10 flex flex-col-reverse items-center gap-1.5 w-full pb-1">
                 {pegDisks.map(disk => {
-                  const widthPct = 34 + disk * 14;
-                  const colorGradient = DISK_COLORS[(disk - 1) % DISK_COLORS.length];
+                  const widthPct = 36 + disk * 13;
+                  const diskStyle = DISK_STYLES[(disk - 1) % DISK_STYLES.length];
                   return (
                     <div
                       key={disk}
                       style={{ width: `${widthPct}%` }}
-                      className={`h-7 rounded-lg bg-gradient-to-r ${colorGradient} shadow-md border border-white/20 flex items-center justify-center text-xs font-mono font-bold text-white transition-all`}
+                      className={`h-7 rounded-md border flex items-center justify-center text-xs font-mono font-bold transition-all ${diskStyle}`}
                     >
                       {disk}
                     </div>
@@ -165,15 +166,15 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
 
               {/* Base Platform */}
               <div
-                className={`w-full h-3 rounded-md transition-colors ${
-                  isSelected ? 'bg-cyan-400' : 'bg-slate-700'
+                className={`w-full h-2.5 rounded-sm transition-colors ${
+                  isSelected ? 'bg-vermilion' : 'bg-ink'
                 }`}
               />
 
               {/* Peg Label */}
               <span
-                className={`mt-2 text-xs font-semibold uppercase tracking-wider ${
-                  isSelected ? 'text-cyan-300' : pegIdx === 2 ? 'text-emerald-400' : 'text-slate-400'
+                className={`mt-2 font-mono text-[11px] font-bold uppercase tracking-wider ${
+                  isSelected ? 'text-vermilion' : pegIdx === 2 ? 'text-vermilion' : 'text-ink-muted'
                 }`}
               >
                 {label}
@@ -183,9 +184,9 @@ export const StackSort: React.FC<{ api: GameAPI }> = ({ api }) => {
         })}
       </div>
 
-      <div className="text-slate-400 text-xs text-center">
-        Click a peg to select its top disk, then click another peg to move it there.
-      </div>
+      <p className="text-ink-muted text-xs text-center">
+        Select a peg to lift its top disk, then select another peg to place it.
+      </p>
     </div>
   );
 };

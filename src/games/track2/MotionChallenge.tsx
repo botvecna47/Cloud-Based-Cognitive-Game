@@ -133,21 +133,22 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
   return (
     <div className="flex flex-col items-center gap-5 w-full max-w-xl mx-auto py-2">
       <div className="text-center">
-        <p className="text-slate-200 text-lg sm:text-xl font-medium">
-          Guide the red ball to the <span className="text-cyan-400 font-bold">◎ Target Hole</span>:
+        <p className="text-ink text-base sm:text-lg font-medium">
+          Navigate the vermilion marker to the{' '}
+          <span className="font-mono font-bold text-vermilion">◎ Target</span>:
         </p>
-        <div className="flex items-center justify-center gap-4 mt-2">
-          <span className="text-sm text-slate-400 tabular-nums">
-            Moves: <strong className="text-white font-mono text-base">{moves}</strong>
+        <div className="flex items-center justify-center gap-3 mt-2">
+          <span className="font-mono text-xs text-ink-secondary tabular-nums">
+            Moves: <strong className="text-ink text-sm">{moves}</strong>
           </span>
-          <span className="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md tabular-nums">
-            Optimal: ~{puzzle.shortestPath} moves
+          <span className="font-mono text-[11px] text-ink-muted bg-paper border border-hairline px-2.5 py-0.5 rounded-md tabular-nums">
+            Optimal: ~{puzzle.shortestPath}
           </span>
         </div>
       </div>
 
       {/* Maze Grid */}
-      <div className="p-3 sm:p-5 bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="p-3 sm:p-5 bg-paper rounded-xl border border-hairline">
         <div
           className="grid gap-1.5 sm:gap-2 select-none"
           style={{ gridTemplateColumns: `repeat(${puzzle.n}, minmax(42px, 52px))` }}
@@ -158,22 +159,22 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             const isRock = puzzle.rocks.has(i);
 
             let content = null;
-            let cellStyle = 'bg-slate-800/90 border-slate-700/60';
+            let cellStyle = 'bg-surface border-hairline';
 
             if (isRock) {
-              cellStyle = 'bg-slate-700 border-slate-600 shadow-inner cursor-not-allowed';
-              content = <div className="w-4 h-4 rounded bg-slate-600/90" />;
+              cellStyle = 'bg-ink border-ink cursor-not-allowed';
+              content = <div className="w-3.5 h-3.5 rounded-sm bg-ink-secondary" />;
             } else if (isBall) {
-              cellStyle = 'bg-slate-800 border-rose-500/50';
+              cellStyle = 'bg-vermilion-wash border-vermilion';
               content = (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-red-600 border-2 border-white shadow-lg shadow-rose-500/50 animate-pulse flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-white/70" />
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-vermilion border-2 border-ink flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-surface" />
                 </div>
               );
             } else if (isHole) {
-              cellStyle = 'bg-slate-950 border-cyan-500/70 shadow-inner';
+              cellStyle = 'bg-recessed border-ink border-dashed';
               content = (
-                <div className="w-8 h-8 rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center text-cyan-400 text-base font-bold animate-spin-slow">
+                <div className="w-8 h-8 rounded-full border-2 border-dashed border-ink flex items-center justify-center text-vermilion font-mono text-base font-bold">
                   ◎
                 </div>
               );
@@ -182,7 +183,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             return (
               <div
                 key={i}
-                className={`w-11 h-11 sm:w-13 sm:h-13 rounded-xl border-2 flex items-center justify-center transition-all ${cellStyle}`}
+                className={`w-11 h-11 sm:w-13 sm:h-13 rounded-lg border-2 flex items-center justify-center transition-all ${cellStyle}`}
               >
                 {content}
               </div>
@@ -197,7 +198,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
           type="button"
           onClick={() => move(-1, 0)}
           aria-label="Move up"
-          className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
+          className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           ↑
         </button>
@@ -206,7 +207,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(0, -1)}
             aria-label="Move left"
-            className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
           >
             ←
           </button>
@@ -214,7 +215,7 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(1, 0)}
             aria-label="Move down"
-            className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
           >
             ↓
           </button>
@@ -222,16 +223,16 @@ export const MotionChallenge: React.FC<{ api: GameAPI }> = ({ api }) => {
             type="button"
             onClick={() => move(0, 1)}
             aria-label="Move right"
-            className="w-14 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xl border border-slate-700 hover:border-cyan-400 active:scale-95 transition-all shadow cursor-pointer flex items-center justify-center"
+            className="w-14 h-12 rounded-xl bg-surface hover:bg-recessed text-ink font-mono font-bold text-xl border border-hairline hover:border-ink active:scale-95 transition-all cursor-pointer flex items-center justify-center"
           >
             →
           </button>
         </div>
       </div>
 
-      <div className="text-slate-400 text-xs text-center">
-        Tip: You can also use the Arrow Keys or W / A / S / D on your keyboard.
-      </div>
+      <p className="text-ink-muted text-xs text-center">
+        Use Arrow Keys or W / A / S / D to navigate faster.
+      </p>
     </div>
   );
 };

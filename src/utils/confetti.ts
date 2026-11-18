@@ -2,10 +2,11 @@ import confetti from 'canvas-confetti';
 
 export function fireCelebration() {
   try {
-    const count = 200;
+    const count = 160;
     const defaults = {
-      origin: { y: 0.7 },
+      origin: { y: 0.72 },
       zIndex: 9999,
+      colors: ['#171717', '#D9381E', '#787670', '#B82D16', '#ECE8DF'],
     };
 
     function fire(particleRatio: number, opts: confetti.Options) {
@@ -16,31 +17,10 @@ export function fireCelebration() {
       });
     }
 
-    fire(0.25, {
-      spread: 26,
-      startVelocity: 55,
-      colors: ['#20B8CF', '#128FB0', '#ffffff'],
-    });
-    fire(0.2, {
-      spread: 60,
-      colors: ['#2f6fed', '#1f9d6d', '#ffd76b'],
-    });
-    fire(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-      colors: ['#e23b57', '#8b5cf6', '#20B8CF'],
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2,
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 45,
-    });
+    fire(0.3, { spread: 34, startVelocity: 48 });
+    fire(0.35, { spread: 68, decay: 0.92, scalar: 0.85 });
+    fire(0.2, { spread: 100, startVelocity: 30, scalar: 1.05 });
+    fire(0.15, { spread: 115, startVelocity: 42 });
   } catch {
     // ignore
   }

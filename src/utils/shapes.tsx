@@ -1,15 +1,19 @@
 import React from 'react';
 
+// Editorial high-contrast shape palette tuned for Alabaster Paper (#FCFBF8) surfaces
 export const COLORS: Record<string, string> = {
-  blue: '#2f6fed',
-  red: '#e23b57',
-  green: '#1f9d6d',
-  amber: '#e7a400',
-  purple: '#8b5cf6',
-  teal: '#128fb0',
-  cyan: '#20B8CF',
-  navy: '#1E2761',
-  white: '#ffffff',
+  ink: '#171717',
+  vermilion: '#D9381E',
+  stone: '#787670',
+  blue: '#1D4ED8',
+  red: '#D9381E',
+  green: '#1F6F54',
+  amber: '#B45309',
+  purple: '#5B21B6',
+  teal: '#0F766E',
+  cyan: '#D9381E',
+  navy: '#171717',
+  white: '#FCFBF8',
 };
 
 export const SHAPES = ['circle', 'square', 'triangle', 'diamond', 'star', 'hex'] as const;
@@ -44,15 +48,15 @@ interface ShapeProps {
 
 export const Shape: React.FC<ShapeProps> = ({
   name,
-  color = 'navy',
+  color = 'ink',
   size = 34,
   filled = true,
   className = '',
 }) => {
-  const c = COLORS[color] || color || '#1E2761';
+  const c = COLORS[color] || color || '#171717';
   const s = size;
   const h = s / 2;
-  const strokeWidth = Math.max(2, Math.round(s / 12));
+  const strokeWidth = Math.max(2, Math.round(s / 11));
 
   const fillAttr = filled ? c : 'none';
   const strokeAttr = filled ? 'none' : c;
@@ -79,7 +83,7 @@ export const Shape: React.FC<ShapeProps> = ({
           y={strokeWidth}
           width={s - strokeWidth * 2}
           height={s - strokeWidth * 2}
-          rx={Math.max(2, Math.round(s / 8))}
+          rx={Math.max(2, Math.round(s / 9))}
           fill={fillAttr}
           stroke={strokeAttr}
           strokeWidth={strokeWidth}

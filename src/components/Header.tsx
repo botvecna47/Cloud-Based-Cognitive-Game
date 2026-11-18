@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Volume2,
-  VolumeX,
-  BarChart3,
-  Layers,
-  Compass,
-  LayoutGrid,
-  Trophy,
-  History,
-  Award,
-  LogIn,
-} from 'lucide-react';
+import { Volume2, VolumeX, LogIn } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { getAvatarIcon } from '../utils/avatars';
 import { useAuth } from '../context/AuthContext';
@@ -50,129 +39,88 @@ export const Header: React.FC<HeaderProps> = ({
     setSoundEnabled(next);
   };
 
-  const rankBadgeColors: Record<string, string> = {
-    Grandmaster: 'text-purple-300 bg-purple-950/80 border-purple-400/50',
-    Master: 'text-rose-300 bg-rose-950/80 border-rose-400/50',
-    Diamond: 'text-cyan-300 bg-cyan-950/80 border-cyan-400/50',
-    Platinum: 'text-teal-300 bg-teal-950/80 border-teal-400/50',
-    Gold: 'text-amber-300 bg-amber-950/80 border-amber-400/50',
-    Silver: 'text-slate-200 bg-slate-800 border-slate-600',
-    Bronze: 'text-orange-300 bg-orange-950/80 border-orange-400/50',
-  };
-
-  const navItems: {
-    id: MainNavTab;
-    label: string;
-    Icon: React.ComponentType<{ className?: string }>;
-    accentInactive?: string;
-  }[] = [
-    { id: 'track1', label: 'Cognitive Track', Icon: Compass },
-    { id: 'track2', label: 'Challenge Track', Icon: Layers },
-    { id: 'all', label: 'All Games', Icon: LayoutGrid },
-    { id: 'leaderboards', label: 'Leaderboard', Icon: Trophy, accentInactive: 'text-amber-400' },
-    { id: 'history', label: 'History', Icon: History },
-    { id: 'analytics', label: 'Analytics', Icon: BarChart3 },
-    { id: 'achievements', label: 'Badges', Icon: Award, accentInactive: 'text-amber-400' },
+  const navItems: { id: MainNavTab; label: string }[] = [
+    { id: 'track1', label: 'Cognitive Track' },
+    { id: 'track2', label: 'Challenge Track' },
+    { id: 'all', label: 'All Games' },
+    { id: 'leaderboards', label: 'Leaderboard' },
+    { id: 'history', label: 'History' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'achievements', label: 'Badges' },
   ];
 
+  const isCloud = isSupabaseConfigured && isSupabaseOnline;
+
   return (
-    <header className="w-full flex flex-col gap-4 pb-4 border-b border-slate-800/80 mb-6">
+    <header className="w-full flex flex-col gap-5 mb-8 sm:mb-10">
       <div className="flex items-center justify-between flex-wrap gap-4">
-        {/* Brand Logo & Title */}
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-lg shadow-cyan-500/10 shrink-0">
-            <svg className="w-full h-full" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-              <rect x="6" y="6" width="22" height="22" rx="6" fill="#20B8CF" />
-              <rect x="36" y="6" width="22" height="22" rx="6" fill="#38BDF8" fillOpacity="0.35" stroke="#20B8CF" strokeWidth="3" />
-              <rect x="6" y="36" width="22" height="22" rx="6" fill="#6366F1" fillOpacity="0.45" stroke="#818CF8" strokeWidth="3" />
-              <circle cx="47" cy="47" r="11" fill="#10B981" />
-              <path d="M42.5 47L45.5 50L52 43.5" stroke="#020617" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Brand Mark & Wordmark */}
+        <button
+          type="button"
+          onClick={() => !isInGame && onSelectTab('track1')}
+          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+        >
+          <div className="w-9 h-9 rounded-lg bg-ink flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-[1.03]">
+            <svg width="24" height="24" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              <rect x="4" y="4" width="12" height="12" rx="2.5" fill="#FCFBF8" />
+              <rect x="20" y="4" width="12" height="12" rx="2.5" fill="#FCFBF8" fillOpacity="0.32" />
+              <rect x="4" y="20" width="12" height="12" rx="2.5" fill="#FCFBF8" fillOpacity="0.32" />
+              <circle cx="26" cy="26" r="6" fill="#D9381E" />
             </svg>
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-white tracking-wide text-base sm:text-lg">
-                GAMEFIED APTI
-              </span>
-              <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-extrabold border border-cyan-500/30">
-                ARENA
-              </span>
+            <div className="font-sans font-bold text-ink tracking-tight text-sm sm:text-base leading-none">
+              GAMEFIED APTI
             </div>
-            <p className="text-xs text-slate-400 hidden sm:block">
-              Cognitive & Aptitude Game Arena
-            </p>
+            <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-muted mt-1">
+              Cognitive &amp; Aptitude Arena
+            </div>
           </div>
-        </div>
+        </button>
 
-        {/* User Pill, Cloud Status & Audio Controls */}
+        {/* Right Utility Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-          {/* Supabase Status Pill */}
           <button
             type="button"
             onClick={onOpenSupabaseSetup}
-            title="View Supabase Cloud Database Status & Configuration"
-            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
-              isSupabaseConfigured && isSupabaseOnline
-                ? 'bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border-emerald-500/40 shadow-sm'
-                : 'bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 border-amber-500/40'
-            }`}
+            title="View Supabase Cloud Database Status"
+            className="px-3 py-1.5 rounded-full bg-surface hover:bg-recessed border border-hairline text-ink text-[11px] font-mono font-medium tracking-wider uppercase flex items-center gap-2 transition-colors cursor-pointer"
           >
             <span
               className={`w-2 h-2 rounded-full ${
-                isSupabaseConfigured && isSupabaseOnline ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+                isCloud ? 'bg-vermilion' : 'bg-ink-muted'
               }`}
             />
-            <span className="hidden sm:inline">
-              {isSupabaseConfigured && isSupabaseOnline ? 'Cloud Sync' : 'Local Sandbox'}
-            </span>
-            <span className="sm:hidden">
-              {isSupabaseConfigured && isSupabaseOnline ? 'Cloud' : 'Local'}
-            </span>
+            <span className="hidden sm:inline">{isCloud ? 'Cloud Sync' : 'Local Mode'}</span>
+            <span className="sm:hidden">{isCloud ? 'Cloud' : 'Local'}</span>
           </button>
 
-          {/* Audio Toggle */}
           <button
             type="button"
             onClick={toggleAudio}
             aria-label={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
             title={soundEnabled ? 'Mute sound effects' : 'Enable sound effects'}
-            className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition-all cursor-pointer flex items-center justify-center"
+            className="p-2 rounded-lg bg-surface hover:bg-recessed text-ink-secondary hover:text-ink border border-hairline transition-colors cursor-pointer flex items-center justify-center"
           >
-            {soundEnabled ? (
-              <Volume2 className="w-4 h-4 text-cyan-400" />
-            ) : (
-              <VolumeX className="w-4 h-4 text-slate-500" />
-            )}
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-ink-muted" />}
           </button>
 
-          {/* User Account / Profile Button */}
           {user ? (
             <button
               type="button"
               onClick={onOpenSettings}
-              className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold flex items-center gap-2.5 transition-all cursor-pointer shadow"
+              className="px-3.5 py-1.5 rounded-lg bg-ink hover:bg-ink/90 text-surface text-xs font-mono font-medium flex items-center gap-2.5 transition-colors cursor-pointer"
             >
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-xs">
+              <span className="text-vermilion font-bold" aria-hidden="true">
                 {getAvatarIcon(user.avatarUrl)}
-              </div>
-              <div className="text-left hidden sm:block">
-                <div className="text-white font-bold leading-tight flex items-center gap-1.5">
-                  <span>{user.username}</span>
-                  {user.isGuest && (
-                    <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">
-                      Guest
-                    </span>
-                  )}
-                </div>
-                <div className="text-[10px] text-cyan-400 font-mono tabular-nums">
-                  {user.totalXp.toLocaleString()} XP • {user.rankTier}
-                </div>
-              </div>
-              <span
-                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border hidden md:inline ${
-                  rankBadgeColors[user.rankTier] || rankBadgeColors.Bronze
-                }`}
-              >
+              </span>
+              <span className="font-sans font-semibold tracking-normal">{user.username}</span>
+              <span className="text-surface/40 hidden sm:inline">•</span>
+              <span className="tabular-nums hidden sm:inline text-surface/90">
+                {user.totalXp.toLocaleString()} XP
+              </span>
+              <span className="text-surface/40 hidden md:inline">•</span>
+              <span className="uppercase tracking-wider text-[10px] hidden md:inline text-surface/80">
                 {user.rankTier}
               </span>
             </button>
@@ -180,19 +128,22 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-cyan-500/20 transition-all cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-vermilion hover:bg-vermilion-hover text-surface font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span>Sign In / Sign Up</span>
+              <span>Sign In</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Main Navigation Tabs */}
+      {/* Editorial Underlined Navigation Bar */}
       {!isInGame && (
-        <nav aria-label="Main navigation" className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {navItems.map(({ id, label, Icon, accentInactive }) => {
+        <nav
+          aria-label="Main navigation"
+          className="flex items-center gap-6 sm:gap-7 overflow-x-auto border-b border-hairline scrollbar-none"
+        >
+          {navItems.map(({ id, label }) => {
             const isActive = currentTab === id;
             return (
               <button
@@ -200,14 +151,16 @@ export const Header: React.FC<HeaderProps> = ({
                 key={id}
                 onClick={() => onSelectTab(id)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer border ${
+                className={`relative pb-3 text-sm whitespace-nowrap transition-colors cursor-pointer focus:outline-none focus-visible:text-vermilion ${
                   isActive
-                    ? 'bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-950 border-cyan-300 shadow-md shadow-cyan-500/20 font-extrabold'
-                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80 hover:text-white border-slate-700/60'
+                    ? 'font-semibold text-vermilion'
+                    : 'font-medium text-ink-secondary hover:text-ink'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : accentInactive || ''}`} />
                 <span>{label}</span>
+                {isActive && (
+                  <span className="absolute left-0 right-0 bottom-0 h-[2px] bg-vermilion" />
+                )}
               </button>
             );
           })}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { dbService } from '../services/dbService';
 import { UserAnalytics } from '../types';
-import { Brain, ArrowLeft, Target, Award, Zap, TrendingUp, Compass, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { user } = useAuth();
@@ -26,21 +26,20 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
-        <div className="animate-spin text-3xl">🧠</div>
-        <p className="text-sm">Calculating cognitive telemetry analytics...</p>
+      <div className="flex flex-col items-center justify-center py-20 text-ink-muted font-mono text-sm gap-2">
+        <span>Computing cognitive analytics...</span>
       </div>
     );
   }
 
   if (!analytics) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-4">
-        <p className="text-sm">Sign in or play a practice round to generate your cognitive analytics.</p>
+      <div className="flex flex-col items-center justify-center py-16 text-ink-secondary gap-4">
+        <p className="text-sm">Sign in or complete a practice round to generate your cognitive analytics.</p>
         <button
           type="button"
           onClick={onBack}
-          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold cursor-pointer"
+          className="px-4 py-2 rounded-xl bg-surface hover:bg-recessed text-ink border border-hairline text-xs font-semibold cursor-pointer"
         >
           Back to Arena
         </button>
@@ -51,142 +50,138 @@ export const AnalyticsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { abilities } = analytics;
 
   const abilityCards = [
-    { name: 'Numerical Agility', score: abilities.numerical, desc: 'Speed & accuracy with mental arithmetic and equation balancing', icon: '🔢', color: 'from-blue-500 to-cyan-500' },
-    { name: 'Working Memory', score: abilities.workingMemory, desc: 'Short-term visual recall under dual-task interference', icon: '🧠', color: 'from-purple-500 to-indigo-500' },
-    { name: 'Planning & Sequencing', score: abilities.planning, desc: 'Forward-looking step calculation (Tower of Hanoi & maze navigation)', icon: '🗼', color: 'from-emerald-500 to-teal-500' },
-    { name: 'Logical Reasoning', score: abilities.logical, desc: 'Rule extraction from input/output transformations', icon: '⚙️', color: 'from-amber-500 to-yellow-500' },
-    { name: 'Deductive Logic', score: abilities.deductive, desc: 'Constraint satisfaction in nonograms and Latin square grids', icon: '🔳', color: 'from-rose-500 to-red-500' },
-    { name: 'Pattern Recognition', score: abilities.pattern, desc: 'Geometric matrix analogies and anomaly detection', icon: '🧩', color: 'from-cyan-400 to-teal-400' },
+    { code: '01', name: 'Numerical Agility', score: abilities.numerical, desc: 'Mental arithmetic speed and equation balancing.' },
+    { code: '02', name: 'Working Memory', score: abilities.workingMemory, desc: 'Short-term visual sequence & dual-task recall.' },
+    { code: '03', name: 'Planning & Sequencing', score: abilities.planning, desc: 'Forward-looking step calculation across towers and mazes.' },
+    { code: '04', name: 'Logical Reasoning', score: abilities.logical, desc: 'Rule extraction from input/output transformations.' },
+    { code: '05', name: 'Deductive Logic', score: abilities.deductive, desc: 'Constraint satisfaction in pixel grids and Latin squares.' },
+    { code: '06', name: 'Pattern Recognition', score: abilities.pattern, desc: 'Visual matrix analogies and anomaly detection.' },
   ];
 
-  // Cognitive readiness index
-  const avgAbility = Math.round(
-    Object.values(abilities).reduce((a, b) => a + b, 0) / 6
-  );
+  const avgAbility = Math.round(Object.values(abilities).reduce((a, b) => a + b, 0) / 6);
 
   const readinessBand =
-    avgAbility >= 80 ? 'Elite Readiness (Top 10%)' :
-    avgAbility >= 65 ? 'Strong Performer (Top 25%)' :
-    avgAbility >= 50 ? 'Intermediate Aptitude' : 'Foundational Aptitude';
+    avgAbility >= 80
+      ? 'Elite Readiness (Top 10%)'
+      : avgAbility >= 65
+      ? 'Strong Performer (Top 25%)'
+      : avgAbility >= 50
+      ? 'Intermediate Aptitude'
+      : 'Foundational Aptitude';
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto py-2 animate-fade-in">
+    <div className="flex flex-col gap-7 w-full animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex items-end justify-between flex-wrap gap-4 border-b border-hairline pb-5">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2.5">
-            <Brain className="w-8 h-8 text-cyan-400" />
-            <span>Cognitive Analytics</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-vermilion font-medium">
+            Cognitive Profile
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold text-ink tracking-tight mt-1">
+            Analytics
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-            Multi-dimensional breakdown across all six cognitive aptitude pillars.
-          </p>
         </div>
 
         <button
+          type="button"
           onClick={onBack}
-          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer"
+          className="px-4 py-2 rounded-xl bg-surface hover:bg-recessed text-ink border border-hairline text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Arena</span>
         </button>
       </div>
 
-      {/* Readiness Overview Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-[#1E2761] via-indigo-950 to-slate-900 border border-cyan-500/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
-          <div className="relative w-24 h-24 rounded-2xl bg-cyan-500/10 border-2 border-cyan-400/40 flex flex-col items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
-            <span className="text-3xl font-black font-mono text-cyan-300">{avgAbility}</span>
-            <span className="text-[10px] uppercase font-bold text-slate-400">Index</span>
+      {/* High-Contrast Readiness Summary */}
+      <div className="p-7 sm:p-8 rounded-2xl bg-ink text-surface flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 rounded-2xl bg-surface/10 border border-surface/20 flex flex-col items-center justify-center shrink-0">
+            <span className="font-mono text-3xl font-bold text-surface tabular-nums">{avgAbility}</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-vermilion mt-0.5">
+              Index
+            </span>
           </div>
           <div>
-            <div className="text-xs uppercase tracking-wider text-cyan-400 font-extrabold flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Assessment Readiness Rating</span>
+            <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-vermilion">
+              Cognitive Readiness Rating
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+            <h3 className="font-display text-2xl sm:text-3xl font-semibold text-surface mt-1">
               {readinessBand}
             </h3>
-            <p className="text-xs text-slate-300 mt-1 max-w-md">
-              Computed across {analytics.totalGamesPlayed} completed assessment rounds with an overall accuracy of {analytics.overallAccuracy}%.
+            <p className="text-xs sm:text-sm text-surface/75 mt-1.5 max-w-md">
+              Computed across {analytics.totalGamesPlayed} completed rounds with {analytics.overallAccuracy}% average accuracy.
             </p>
           </div>
         </div>
 
-        {/* Global Summary Stats */}
-        <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 text-center">
-            <div className="text-lg font-black text-emerald-400 font-mono">
+        <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+          <div className="p-4 rounded-xl bg-surface/10 border border-surface/15 text-center">
+            <div className="font-mono text-xl font-bold text-surface tabular-nums">
               {analytics.totalScore.toLocaleString()}
             </div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Total Points</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-surface/65 mt-0.5">
+              Total Points
+            </div>
           </div>
-          <div className="p-3 bg-slate-800/80 rounded-xl border border-slate-700 text-center">
-            <div className="text-lg font-black text-amber-300 font-mono">
+          <div className="p-4 rounded-xl bg-surface/10 border border-surface/15 text-center">
+            <div className="font-mono text-xl font-bold text-vermilion tabular-nums">
               {analytics.highestPerformanceIndex}/100
             </div>
-            <div className="text-[10px] text-slate-400 uppercase font-semibold">Peak Index</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-surface/65 mt-0.5">
+              Peak Index
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 6 Cognitive Ability Pillars */}
-      <div className="flex flex-col gap-3">
-        <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-          <Target className="w-4 h-4 text-cyan-400" />
-          <span>Core Cognitive Dimensions</span>
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {abilityCards.map(pillar => (
-            <div
-              key={pillar.name}
-              className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col justify-between shadow-lg"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-2xl">{pillar.icon}</span>
-                    <span className="font-bold text-white text-base">{pillar.name}</span>
-                  </div>
-                  <span className="font-mono text-xl font-black text-cyan-300">
-                    {pillar.score}%
-                  </span>
+      {/* 6 Pillars Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {abilityCards.map(pillar => (
+          <div
+            key={pillar.name}
+            className="p-6 rounded-2xl bg-surface border border-hairline flex flex-col justify-between gap-4"
+          >
+            <div>
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono text-[11px] text-vermilion font-medium">{pillar.code}</span>
+                  <span className="font-display text-lg font-semibold text-ink">{pillar.name}</span>
                 </div>
-                <p className="text-xs text-slate-400 mb-3">{pillar.desc}</p>
+                <span className="font-mono text-xl font-bold text-ink tabular-nums">
+                  {pillar.score}%
+                </span>
               </div>
-
-              {/* Progress Bar */}
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div
-                  className={`h-full rounded-full bg-gradient-to-r ${pillar.color} transition-all duration-500`}
-                  style={{ width: `${pillar.score}%` }}
-                />
-              </div>
+              <p className="text-xs text-ink-secondary mt-1.5">{pillar.desc}</p>
             </div>
-          ))}
-        </div>
+
+            <div className="w-full h-1.5 rounded-full bg-recessed overflow-hidden">
+              <div
+                className="h-full rounded-full bg-vermilion transition-all duration-500"
+                style={{ width: `${pillar.score}%` }}
+              />
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Historical Performance Timeline */}
+      {/* Recent Timeline */}
       {analytics.recentGamesTimeline.length > 0 && (
-        <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span>Recent Sessions Trend</span>
+        <div className="p-6 rounded-2xl bg-surface border border-hairline">
+          <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-muted mb-4">
+            Recent Sessions Trend
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
             {analytics.recentGamesTimeline.map((item, idx) => (
               <div
                 key={idx}
-                className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 flex flex-col justify-between text-center"
+                className="p-3 rounded-xl bg-paper border border-hairline flex flex-col justify-between text-center"
               >
-                <div className="text-[10px] text-slate-400 font-semibold">{item.date}</div>
-                <div className="text-xs font-bold text-white truncate my-1">{item.gameName}</div>
-                <div className="text-sm font-black font-mono text-cyan-300">{item.score} pts</div>
-                <div className="text-[10px] font-semibold text-emerald-400 mt-0.5">
-                  {item.accuracy}% acc
+                <div className="font-mono text-[10px] text-ink-muted">{item.date}</div>
+                <div className="text-xs font-semibold text-ink truncate my-1">{item.gameName}</div>
+                <div className="font-mono text-sm font-bold text-ink tabular-nums">{item.score}</div>
+                <div className="font-mono text-[10px] font-medium text-vermilion tabular-nums mt-0.5">
+                  {item.accuracy}%
                 </div>
               </div>
             ))}
